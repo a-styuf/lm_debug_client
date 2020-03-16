@@ -28,10 +28,10 @@ class MyUSBCANDevice(serial.Serial):
         serial.Serial.__init__(self)
         self.serial_numbers = []  # это лист возможных серийников!!! (не строка)
         self.baudrate = 115200
-        self.timeout = 0.01
+        self.timeout = 0.005
         self.port = "COM0"
         self.row_data = b""
-        self.read_timeout = 0.5
+        self.read_timeout = 0.2
         self.request_num = 0
         self.debug = False
         self.crc_check = True
@@ -65,7 +65,8 @@ class MyUSBCANDevice(serial.Serial):
             +1: "Связь в норме",
         }
         self.state = 0
-        self.log_buffer = []
+        self.serial_log_buffer = []
+        self.can_log_buffer = []
         # для работы с потоками
         self.read_write_thread = None
         self._close_event = threading.Event()
@@ -81,7 +82,7 @@ class MyUSBCANDevice(serial.Serial):
             self._print("Find:", str(com), com.serial_number)
             for serial_number in self.serial_numbers:
                 self._print("ID comparison:", com.serial_number, serial_number)
-                if com.serial_number is not None:
+                if com.serial_number and len(serial_number) >= 8:
                     if com.serial_number.find(serial_number) >= 0:
                         self._print("Connection to:", com.device)
                         self.port = com.device
@@ -117,13 +118,15 @@ class MyUSBCANDevice(serial.Serial):
     def request(self, can_num=0, dev_id=0, mode="read", var_id=0, offset=0, d_len=0, data=None):
         rtr = 0 if mode is "write" else 1
         real_len = min(d_len, len(data)) if mode is "write" else d_len
-        part_offset = offset
+        part_offset = 0
         packets_list = []
+        id_var = 0x00
+        init_id_var = 0x00
         while real_len > 0:
             part_len = 8 if real_len >= 8 else real_len
             real_len -= 8
             finish = 1 if real_len <= 0 else 0
-            id_var = ((dev_id & 0x0F) << 28) | ((var_id & 0x0F) << 24) | ((part_offset & 0x1FFFFF) << 3) | \
+            id_var = ((dev_id & 0x0F) << 28) | ((var_id & 0x0F) << 24) | (((part_offset+offset) & 0x1FFFFF) << 3) | \
                      ((0x00 & 0x01) << 2) | ((rtr & 0x01) << 1) | ((0x00 & 0x01) << 0)
             packet_list = [can_num & 0x01, 0x00,
                            (id_var >> 0) & 0xFF, (id_var >> 8) & 0xFF,
@@ -134,6 +137,10 @@ class MyUSBCANDevice(serial.Serial):
             packets_list.append([packet_list, rtr, finish])
         with self.com_send_lock:
             self.com_queue.extend(packets_list)
+        with self.log_lock:
+            id_var = ((dev_id & 0x0F) << 28) | ((var_id & 0x0F) << 24) | ((offset & 0x1FFFFF) << 3) | \
+                     ((0x00 & 0x01) << 2) | ((rtr & 0x01) << 1) | ((0x00 & 0x01) << 0)
+            self.can_log_buffer.append(self.can_log_str(id_var, data[0:real_len], real_len))
         self._print("Try to send command <0x%08X> (%s):" % (id_var, self._id_var_to_str(id_var)))
 
     def _id_var(self, id_var):
@@ -145,7 +152,7 @@ class MyUSBCANDevice(serial.Serial):
         """
         dev_id = (id_var >> 28) & 0x0F
         var_id = (id_var >> 24) & 0x0F
-        offset = (id_var >> 3) & 0x01FFFF
+        offset = (id_var >> 3) & 0x01FFFFF
         res2 = (id_var >> 2) & 0x01
         rtr = (id_var >> 1) & 0x01
         res1 = (id_var >> 0) & 0x01
@@ -154,26 +161,27 @@ class MyUSBCANDevice(serial.Serial):
 
     def _id_var_to_str(self, id_var):
         ret_str = ""
-        ret_str += "rtr: %d " % self._id_var(id_var)[1]
-        ret_str += "offset: %d " % self._id_var(id_var)[3]
-        ret_str += "var_id: %d " % self._id_var(id_var)[4]
-        ret_str += "dev_id: %d " % self._id_var(id_var)[5]
+        ret_str += "dev_id:%2d " % self._id_var(id_var)[5]
+        ret_str += "var_id:%2d " % self._id_var(id_var)[4]
+        ret_str += "offs:%3d " % self._id_var(id_var)[3]
+        ret_str += "rtr:%d-%s " % (self._id_var(id_var)[1], "wr" if self._id_var(id_var)[1] else "rd")
         return ret_str
 
     def thread_function(self):
         try:
+            full_time_start = 0
+            id_var = 0
             while True:
                 nansw = 0
-                reprot_id_var = 0
                 if self.is_open is True:
-                    time.sleep(0.010)
+                    time.sleep(0.001)
                     # отправка команд
                     if self.com_queue:
                         with self.com_send_lock:
                             packet_to_send = self.com_queue.pop(0)
+                            data_to_send = packet_to_send[0]
                             rtr = packet_to_send[1]
                             finish = packet_to_send[2]
-                            data_to_send = packet_to_send[0]
                         if self.in_waiting:
                             self._print("In input buffer %d bytes" % self.in_waiting)
                             self.read(self.in_waiting)
@@ -187,13 +195,13 @@ class MyUSBCANDevice(serial.Serial):
                             self._print("Send error: ", error)
                             pass
                         with self.log_lock:
-                            self.log_buffer.append(get_time() + bytes_array_to_str(bytes(data_to_send)))
+                            self.serial_log_buffer.append(get_time() + bytes_array_to_str(bytes(data_to_send)))
                         # прием ответа: ждем ответа timeout ms только в случае rtr=1
                         buf = bytearray(b"")
                         read_data = bytearray(b"")
                         time_start = time.perf_counter()
                         while rtr:
-                            time.sleep(0.01)
+                            time.sleep(0.003)
                             timeout = time.perf_counter() - time_start
                             if timeout >= self.read_timeout:
                                 break
@@ -207,7 +215,7 @@ class MyUSBCANDevice(serial.Serial):
                             if read_data:
                                 self._print("Receive data with timeout <%.3f>: " % self.timeout, bytes_array_to_str(read_data))
                                 with self.log_lock:
-                                    self.log_buffer.append(get_time() + bytes_array_to_str(read_data))
+                                    self.serial_log_buffer.append(get_time() + bytes_array_to_str(read_data))
                                 read_data = buf + bytes(read_data)  # прибавляем к новому куску старый кусок
                                 self._print("Data to process: ", bytes_array_to_str(read_data))
                                 if len(read_data) >= 4:
@@ -219,14 +227,16 @@ class MyUSBCANDevice(serial.Serial):
                                             rtr = 0
                                             if len(self.answer_data_buffer) == 0:
                                                 id_var = int.from_bytes(read_data[2:6], byteorder="little")
+                                                full_time_start = time_start
                                             self.answer_data_buffer.extend(read_data[8:8 + data_len])
                                             if finish:
                                                 with self.ans_data_lock:
                                                     self.answer_data.append([id_var,
                                                                              self.answer_data_buffer])
-                                                    self._print("Id_var = 0x%08X (%s), read data: " %
-                                                                (id_var, self._id_var_to_str(id_var)),
-                                                                bytes_array_to_str(self.answer_data_buffer))
+                                                    self._print(self.can_log_str(id_var, self.answer_data_buffer, len(self.answer_data_buffer)))
+                                                with self.log_lock:
+                                                    self.can_log_buffer.append(
+                                                        self.can_log_str(id_var, self.answer_data_buffer, len(self.answer_data_buffer)))
                                                 self.answer_data_buffer = []
                                         else:
                                             buf = read_data
@@ -253,11 +263,48 @@ class MyUSBCANDevice(serial.Serial):
             self._print(error)
         pass
 
-    def get_log(self):
+    def get_can_log(self):
         with self.log_lock:
-            log = copy.deepcopy(self.log_buffer)
-            self.log_buffer = []
+            log = copy.deepcopy(self.can_log_buffer)
+            self.can_log_buffer = []
         return log
+
+    def get_serial_log(self):
+        with self.log_lock:
+            log = copy.deepcopy(self.serial_log_buffer)
+            self.serial_log_buffer = []
+        return log
+
+    def get_data(self):
+        id_var = 0
+        data = []
+        with self.ans_data_lock:
+            if self.answer_data:
+                id_var = self.answer_data[-1][0]
+                for i in range((len(self.answer_data[-1][1]) + 1)//2):
+                    try:
+                        data.append((self.answer_data[-1][1][2*i] << 8) + (self.answer_data[-1][1][2*i+1] << 0))
+                    except IndexError:
+                        data.append((self.answer_data[-1][1][2*i] << 8))
+                self.answer_data = []
+        return id_var, data
+
+    def can_log_str(self, id_var, bytes_data, data_len):
+        log_str = "Id_var: 0x%08X (%s); len: %3d; data:%s" % (
+                    id_var, self._id_var_to_str(id_var),
+                    data_len,
+                    bytes_array_to_str(bytes_data))
+        return log_str
+
+    def state_check(self):
+        state_str = self.state_string[self.state]
+        if self.state > 0:
+            state_color = "seagreen"
+        elif self.state < 0:
+            state_color = "orangered"
+        else:
+            state_color = "gray"
+        return state_str, state_color
 
 
 def get_time():

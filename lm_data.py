@@ -23,6 +23,8 @@ class LMData:
                 self.serial_numbers = kw.pop(key)
             elif key == "baudrate":
                 self.baudrate = kw.pop(key)
+            elif key == "address":
+                self.address = kw.pop(key)
             elif key == "timeout":
                 self.timeout = kw.pop(key)
             elif key == "port":
@@ -35,7 +37,7 @@ class LMData:
                 pass
         # интерфейс работы с ITB - virtual com port
         self.serial = my_serial.MySerial(baudrate=self.baudrate, serial_numbers=self.serial_numbers, debug=self.debug,
-                                         crc=self.crc_check)
+                                         crc=self.crc_check, d_addr=self.address)
         # заготовка для хранения данных прибора
         self.general_data_name = ["Time, s", "Pwr switch, hex"]
         self.pwr_chan_names = ["LM", "PL11A", "PL11B", "PL12", "PL20", "PL_DCR1", "PL_DCR2"]

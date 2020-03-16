@@ -17,6 +17,7 @@ class MySerial(serial.Serial):
         self.read_timeout = 0.5
         self.debug = False
         self.crc_check = True
+        self.d_addr = 0x01  # device address
         for key in sorted(kw):
             if key == "serial_numbers":
                 self.serial_numbers = kw.pop(key)
@@ -30,11 +31,12 @@ class MySerial(serial.Serial):
                 self.debug = kw.pop(key)
             elif key == "crc":
                 self.crc_check = kw.pop(key)
+            elif key == "d_addr":
+                self.d_addr = kw.pop(key)
             else:
                 pass
         # общие переменные
         self.s_addr = 0x00  # self address
-        self.d_addr = 0x01  # device address
         self.seq_num = 0
         self.com_queue = []  # очередь отправки
         self.nansw = 0  # неответы

@@ -18,7 +18,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.setWindowIcon(QtGui.QIcon('icon.png'))
         self.setWindowTitle("Norby - Linking Module")
         # класс для управления устройством
-        self.lm = lm_data.LMData(serial_numbers=["205135995748"], debug=True)
+        self.lm = lm_data.LMData(serial_numbers=["205135995748"], debug=True, address=6)
         self.connectionPButt.clicked.connect(self.lm.serial.reconnect)
         # управление питанием МС
         self.pwrChsSetPButton.clicked.connect(self.pwr_set_channels_state)
