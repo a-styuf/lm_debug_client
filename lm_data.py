@@ -65,8 +65,19 @@ class LMData:
             self.serial.request(cmd=0x02, data=data)
         elif mode in "pwr_on_off_separately":
             self.serial.request(cmd=0x06, data=data)
+        elif mode in "cyclogram_start":
+            self.serial.request(cmd=0x03, data=data)
         else:
             self.serial.request(cmd=0x00, data=data)
+
+    def send_start_single_cyclogram_num(self, cyclogram_num):
+        self.send_cmd(mode="cyclogram_start", data=[0x01, cyclogram_num & 0xFF])
+
+    def send_start_cyclic_cyclograms(self):
+        self.send_cmd(mode="cyclogram_start", data=[0x02, 0x00])
+
+    def send_stop_any_cyclograms(self):
+        self.send_cmd(mode="cyclogram_start", data=[0x00, 0x00])
 
     def parc_data(self):
         while True:
@@ -83,6 +94,8 @@ class LMData:
                     pass
                 elif var[0] == 0x02:  # pwr tmi
                     self.parc_power_data(var[1])
+                elif var[0] == 0x03:  # cyclograms
+                    pass
             if self._close_event.is_set() is True:
                 self._close_event.clear()
                 return

@@ -33,6 +33,10 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
                                   self.dcr2ChannelsChBox]
         # заполнение таблицы с параметрами
         self.channels_data_tables_init()
+        # работа с циклограммами
+        self.singleCyclPButton.clicked.connect(self.single_cyclogram)
+        self.startCyclsPButton.clicked.connect(self.start_cyclograms)
+        self.stopCyclsPButton.clicked.connect(self.stop_cyclograms)
         # обновление gui
         self.DataUpdateTimer = QtCore.QTimer()
         self.DataUpdateTimer.timeout.connect(self.update_ui)
@@ -112,6 +116,23 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             self.PWRReadTimer.stop()
         else:
             self.PWRReadTimer.start(1000)
+        pass
+
+    # управление циклограммами
+    def single_cyclogram(self):
+        try:
+            self.lm.send_start_single_cyclogram_num(int(self.singleCyclSBox.value()))
+        except ValueError:
+            self.singleCyclSBox.setValue(0)
+            self.lm.send_start_single_cyclogram_num(int(self.singleCyclSBox.value()))
+        pass
+
+    def start_cyclograms(self):
+        self.lm.send_start_cyclic_cyclograms()
+        pass
+
+    def stop_cyclograms(self):
+        self.lm.send_stop_any_cyclograms()
         pass
 
     # LOGs #
