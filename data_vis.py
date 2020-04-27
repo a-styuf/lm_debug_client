@@ -14,13 +14,9 @@
 """
 # ext imports
 import sys
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 import pyqtgraph as pg
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-import matplotlib.pyplot as plt
 import copy
-import numpy as np
 import threading
 import time
 # my imports
@@ -41,6 +37,8 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
         super().__init__(parent)
         self.setupUi(self)
         # general variables
+        self.debug = True
+        self.redraw_flag = False
         self.name = ""
         self.set_name(name)
         self.data_list = [
@@ -117,47 +115,53 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
         if data_list is not None:
             with self.copy_data_lock:
                 self.data_list = copy.deepcopy(data_list)
+                self.redraw_flag = True
 
     def graph_plot(self):
-        try:
-            self.plot_data_item_list = self.plot_data_item_list[:len(self.data_list)]
-        except IndexError as error:
-            print(error)
-        #
-        try:
-            for num, state in enumerate(self._check_box_state_list):
-                data_x = self.data_list[0][1]
-                data_y = self.data_list[num][1]
-                data_label = self.data_list[num][0]
-                #
-                if len(self.plot_data_item_list) < num+1:
-                    self.plot_data_item_list.append([None, None])
-                #
-                if state[0]:
-                    if self.plot_data_item_list[num][0] is None:
-                        self.plot_data_item_list[num][0] = self.plot_item_from_num(data_x, data_y, data_label, 2*num+0)
-                        self.pi.vb.addItem(self.plot_data_item_list[num][0])
-                    else:
-                        self.plot_data_item_list[num][0].setData(data_x, data_y)
-                else:
-                    if self.plot_data_item_list[num][0]:
-                        self.pi.vb.removeItem(self.plot_data_item_list[num][0])
-                        self._rmv_legend_item_by_item(self.plot_data_item_list[num][0])
-                        self.plot_data_item_list[num][0] = None
-                if state[1]:
-                    if self.plot_data_item_list[num][1] is None:
-                        self.plot_data_item_list[num][1] = self.plot_item_from_num(data_x, data_y, data_label,
-                                                                                        2 * num + 1)
-                        self.vb2.addItem(self.plot_data_item_list[num][1])
-                    else:
-                        self.plot_data_item_list[num][1].setData(data_x, data_y)
-                else:
-                    if self.plot_data_item_list[num][1]:
-                        self.vb2.removeItem(self.plot_data_item_list[num][1])
-                        self._rmv_legend_item_by_item(self.plot_data_item_list[num][1])
-                        self.plot_data_item_list[num][1] = None
-        except Exception as error:
-            print(error)
+        if self.redraw_flag:
+            self.redraw_flag = False
+            try:
+                self.plot_data_item_list = self.plot_data_item_list[:len(self.data_list)]
+            except IndexError as error:
+                return
+            #
+            try:
+                for num, state in enumerate(self._check_box_state_list):
+                    if self.data_list:
+                        data_x = self.data_list[0][1]
+                        data_y = self.data_list[num][1]
+                        data_label = self.data_list[num][0]
+                        #
+                        if len(self.plot_data_item_list) < num+1:
+                            self.plot_data_item_list.append([None, None])
+                        #
+                        if state[0]:
+                            if self.plot_data_item_list[num][0] is None:
+                                self.plot_data_item_list[num][0] = self.plot_item_from_num(data_x, data_y, data_label, 2*num+0)
+                                self.pi.vb.addItem(self.plot_data_item_list[num][0])
+                            else:
+                                self.plot_data_item_list[num][0].setData(data_x, data_y)
+                        else:
+                            if self.plot_data_item_list[num][0]:
+                                self.pi.vb.removeItem(self.plot_data_item_list[num][0])
+                                self._rmv_legend_item_by_item(self.plot_data_item_list[num][0])
+                                self.plot_data_item_list[num][0] = None
+                        if state[1]:
+                            if self.plot_data_item_list[num][1] is None:
+                                self.plot_data_item_list[num][1] = self.plot_item_from_num(data_x, data_y, data_label,
+                                                                                                2 * num + 1)
+                                self.vb2.addItem(self.plot_data_item_list[num][1])
+                            else:
+                                self.plot_data_item_list[num][1].setData(data_x, data_y)
+                        else:
+                            if self.plot_data_item_list[num][1]:
+                                self.vb2.removeItem(self.plot_data_item_list[num][1])
+                                self._rmv_legend_item_by_item(self.plot_data_item_list[num][1])
+                                self.plot_data_item_list[num][1] = None
+                    pass
+            except Exception as error:
+                self._print(error)
+            pass
         pass
 
     def set_ch_box_st_list(self, ch_b_st_list):
@@ -225,12 +229,13 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
         pen_style_list = [QtCore.Qt.SolidLine,
                           QtCore.Qt.DashLine,
                           QtCore.Qt.DashDotLine,
+                          QtCore.Qt.DashDotDotLine,
                           QtCore.Qt.DotLine,
                           QtCore.Qt.DashDotDotLine]
         pen_width = 2
         try:
             color = self.clr_cd(pen_color_list[line_style_val % len(pen_color_list)])
-            style = pen_style_list[line_style_val // len(pen_style_list)]
+            style = pen_style_list[(line_style_val // len(pen_style_list)) % len(pen_color_list)]
             plot_curve_item.setPen({"color": color, "style": style, "width": pen_width})
         except IndexError:
             plot_curve_item.setPen({"color": self.clr_cd("wh"), "style": QtCore.Qt.SolidLine, "width": pen_width})
@@ -240,7 +245,7 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
         try:
             self.name = str(name)
         except Exception as error:
-            print("set name error: ", error)
+            self._print("set name error: ", error)
 
     def select(self):
         self.vb2.setBackgroundColor(self.clr_cd("dgr"))
@@ -255,12 +260,24 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
         self.mouse_clicked_signal.emit(self.name)
         pass
 
+    def _print(self, *args):
+        if self.debug:
+            print_str = "dvu: " + self.get_time()
+            for arg in args:
+                print_str += " " + str(arg)
+            print(print_str)
+
+    @staticmethod
+    def get_time():
+        return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f:" % time.perf_counter()).split(".")[1]
+
 
 class Units(QtWidgets.QVBoxLayout):
     active_unit_mpr_signal = QtCore.pyqtSignal()  # active unit was pressed by mouse
 
     def __init__(self, parent):
         super().__init__(parent)
+        self.debug = True
         self.parent = parent
         self.unit_list = []
         self._active_unit = None
@@ -289,19 +306,19 @@ class Units(QtWidgets.QVBoxLayout):
                             self._active_unit = self.unit_list[-1]
                             self._active_unit.select()
                     except IndexError as error:
-                        print(error)
+                        self._print(error)
                         self._active_unit = None
                     #
                     unit_to_dlt.deleteLater()
                 except IndexError as error:
-                    print(error)
+                    self._print(error)
                     self._active_unit = None
             else:
                 pass
             self.update()
             pass
         except Exception as error:
-            print("dlt_unit: ", error)
+            self._print("dlt_unit: ", error)
 
     def delete_all_units(self):
         for unit in self.unit_list:
@@ -327,7 +344,7 @@ class Units(QtWidgets.QVBoxLayout):
                 if unit != self._active_unit:
                     unit.pi.vb.enableAutoRange(x=True)
         except Exception as error:
-            print(error)
+            self._print(error)
 
     def _mouse_pres_multi_action(self):
         try:
@@ -337,16 +354,28 @@ class Units(QtWidgets.QVBoxLayout):
             self._active_unit.select()
             self.active_unit_mpr_signal.emit()
         except Exception as error:
-            print(error)
+            self._print(error)
 
     def get_active_unit(self):
         return self._active_unit
+
+    def _print(self, *args):
+        if self.debug:
+            print_str = "dvus: " + self.get_time()
+            for arg in args:
+                print_str += " " + str(arg)
+            print(print_str)
+
+    @staticmethod
+    def get_time():
+        return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f:" % time.perf_counter()).split(".")[1]
 
 
 class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
     def __init__(self):
         # unit-GUI initialization
-        super().__init__()
+        super(Widget, self).__init__()
+        self.debug = True
         self.setupUi(self)
         # general variables
         self.data_list = [
@@ -354,6 +383,11 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
             ["Example 1, SmTh", [2, 3, 0]],
             ["Example 2, SmTh", [2, 3, 1]]
         ]
+        # test
+        self.units = Units(self.gunitQFrame)
+        self.setLayout(self.units)
+        self.units.active_unit_mpr_signal.connect(self.set_active_unit_ch_box_list)
+        self.units.add_unit()
         # table variables
         self.check_box_list = [[QtWidgets.QCheckBox(), QtWidgets.QCheckBox()]]
         self.check_item_changed_lock = 0
@@ -366,13 +400,8 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
         self._set_check_button_state()
         # graphics units (gunit)
         self.gunit_list = []
-        # test
-        self.units = Units(self.gunitQFrame)
-        self.setLayout(self.units)
-        self.units.active_unit_mpr_signal.connect(self.set_active_unit_ch_box_list)
-        self.units.add_unit()
         # работа с кнопками
-        self.addUnitPButton.clicked.connect(self.units.add_unit)
+        self.addUnitPButton.clicked.connect(self.add_unit)
         self.removeUnitPButton.clicked.connect(self.units.delete_unit)
         # обновление gui
         self.redraw_period = 500
@@ -407,7 +436,10 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
             self.table_init()
         # заполняем данные
         for num, data in enumerate(self.get_data_last_val()):
-            table_item = QtWidgets.QTableWidgetItem("%.3g" % data[-1])
+            if num == 0:
+                table_item = QtWidgets.QTableWidgetItem("%d" % data[-1])
+            else:
+                table_item = QtWidgets.QTableWidgetItem("%.3g" % data[-1])
             self.dataTableTWidget.setItem(num, 3, table_item)
 
     def get_data_names(self):
@@ -422,8 +454,8 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
         try:
             if self.check_item_changed_lock == 0:
                 self.units.get_active_unit().set_ch_box_st_list(self._get_check_button_state())
-        except AttributeError:
-            pass
+        except AttributeError as error:
+            self._print(error)
         pass
 
     def set_active_unit_ch_box_list(self):
@@ -454,20 +486,41 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
                 self.check_box_list[row][0].setChecked(self.table_ch_box_state_list[row][0])
                 self.check_box_list[row][1].setChecked(self.table_ch_box_state_list[row][1])
             except IndexError as error:
-                print(error)
+                # self._print(error)
                 break
         # print("set", self.table_ch_box_state_list)
         pass
 
-    # graph
+    def set_graph_data(self, data):
+        self.data_list = copy.deepcopy(data)
+        self.reset_graph_data()
 
-    #
+    def reset_graph_data(self):
+        for unit in self.units.unit_list:
+            unit.set_data(self.data_list)
+        self.table_fill()
+
+    def add_unit(self):
+        self.units.add_unit()
+        self.reset_graph_data()
+
     def update_ui(self):
         # перерисуем графики
         for unit in self.units.unit_list:
             unit.graph_plot()
         # перезапускаем отрисовку
         self.DataUpdateTimer.singleShot(self.redraw_period, self.update_ui)
+
+    def _print(self, *args):
+        if self.debug:
+            print_str = "dvw: " + self.get_time()
+            for arg in args:
+                print_str += " " + str(arg)
+            print(print_str)
+
+    @staticmethod
+    def get_time():
+        return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f:" % time.perf_counter()).split(".")[1]
 
 
 if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
