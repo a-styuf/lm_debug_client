@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'data_vis_widget.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_dataVisWidgetOName(object):
     def setupUi(self, dataVisWidgetOName):
@@ -129,4 +131,3 @@ class Ui_dataVisWidgetOName(object):
         self.dataTableTWidget.setSortingEnabled(__sortingEnabled)
         self.addUnitPButton.setText(_translate("dataVisWidgetOName", "Add"))
         self.removeUnitPButton.setText(_translate("dataVisWidgetOName", "Rmv"))
-

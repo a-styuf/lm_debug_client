@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'data_vis_unit.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_dataVisUnitOName(object):
     def setupUi(self, dataVisUnitOName):
@@ -28,5 +30,4 @@ class Ui_dataVisUnitOName(object):
     def retranslateUi(self, dataVisUnitOName):
         _translate = QtCore.QCoreApplication.translate
         dataVisUnitOName.setWindowTitle(_translate("dataVisUnitOName", "data_vis_unit"))
-
 from pyqtgraph import PlotWidget

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1202</width>
-    <height>786</height>
+    <width>836</width>
+    <height>712</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,6 +93,9 @@
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetMinimumSize</enum>
+          </property>
           <item>
            <widget class="QLabel" name="label">
             <property name="sizePolicy">
@@ -240,6 +243,115 @@
            </spacer>
           </item>
           <item>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetMinimumSize</enum>
+            </property>
+            <item row="4" column="0" colspan="3">
+             <widget class="QPushButton" name="stopCyclsPButton">
+              <property name="text">
+               <string>Stop Cyclograms</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="3">
+             <widget class="QPushButton" name="startCyclsPButton">
+              <property name="text">
+               <string>Start Cyclic Mode</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="3">
+             <widget class="QLabel" name="label_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Cyclograms</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="3">
+             <widget class="Line" name="line_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QSpinBox" name="singleCyclSBox">
+              <property name="minimumSize">
+               <size>
+                <width>50</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QPushButton" name="singleCyclPButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>60</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Single Cyclograma</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="Line" name="line_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <widget class="QLabel" name="label_3">
             <property name="font">
              <font>
@@ -286,68 +398,22 @@
          </layout>
         </item>
         <item>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="4" column="0" colspan="3">
-           <widget class="QPushButton" name="stopCyclsPButton">
-            <property name="text">
-             <string>Stop Cyclograms</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0" colspan="3">
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="0">
-           <widget class="QPushButton" name="singleCyclPButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Single Cyclograma</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="3">
-           <widget class="QPushButton" name="startCyclsPButton">
-            <property name="text">
-             <string>Start Cyclic Mode</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QSpinBox" name="singleCyclSBox">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" colspan="3">
-           <widget class="QLabel" name="label_2">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1500</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="2" column="0" colspan="2">
+           <widget class="QGroupBox" name="pl11AIKUGBoxGrBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -357,37 +423,221 @@
             <property name="minimumSize">
              <size>
               <width>250</width>
-              <height>30</height>
+              <height>0</height>
              </size>
             </property>
-            <property name="font">
-             <font>
-              <pointsize>8</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
+            <property name="title">
+             <string>IKU</string>
             </property>
-            <property name="text">
-             <string>Cyclograms</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
+            <layout class="QGridLayout" name="gridLayout_9">
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
+             <property name="topMargin">
+              <number>5</number>
+             </property>
+             <property name="rightMargin">
+              <number>5</number>
+             </property>
+             <property name="bottomMargin">
+              <number>5</number>
+             </property>
+             <property name="spacing">
+              <number>5</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="pl11AResetFPGAChBox">
+               <property name="text">
+                <string>RESET_FPGA</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QCheckBox" name="pl11AResetMCUChBox">
+               <property name="text">
+                <string>RESEET_MCU</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" colspan="2">
+              <widget class="QPushButton" name="pl11ASetIKUPButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>SET IKU</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="Line" name="line_5">
+          <item row="3" column="0" colspan="2">
+           <widget class="QGroupBox" name="pl11AInterfaceGrBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>Interface</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_10">
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
+             <property name="topMargin">
+              <number>5</number>
+             </property>
+             <property name="rightMargin">
+              <number>5</number>
+             </property>
+             <property name="bottomMargin">
+              <number>5</number>
+             </property>
+             <property name="spacing">
+              <number>5</number>
+             </property>
+             <item row="5" column="1">
+              <widget class="QSpinBox" name="pl11ARdAddrSBox">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="maximum">
+                <number>429496729</number>
+               </property>
+               <property name="displayIntegerBase">
+                <number>16</number>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QSpinBox" name="pl11AWrDataSBox">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="maximum">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="pl11AWrDataLabel">
+               <property name="text">
+                <string>Data (hex):</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QSpinBox" name="pl11AWrAddrSBox">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::UpDownArrows</enum>
+               </property>
+               <property name="accelerated">
+                <bool>false</bool>
+               </property>
+               <property name="maximum">
+                <number>0</number>
+               </property>
+               <property name="displayIntegerBase">
+                <number>16</number>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="pl11AWrAddrLabel">
+               <property name="text">
+                <string>Address (hex):</string>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="0" colspan="2">
+              <widget class="QPushButton" name="pl11ARdPButton">
+               <property name="text">
+                <string>Read</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="pl11ARdAddrLabel">
+               <property name="text">
+                <string>Address (hex):</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0">
+              <widget class="QLabel" name="pl11ARdDataLabel">
+               <property name="text">
+                <string>Data (hex):</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QSpinBox" name="pl11ARdDataSBox">
+               <property name="wrapping">
+                <bool>false</bool>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::NoButtons</enum>
+               </property>
+               <property name="showGroupSeparator" stdset="0">
+                <bool>false</bool>
+               </property>
+               <property name="maximum">
+                <number>429496729</number>
+               </property>
+               <property name="displayIntegerBase">
+                <number>16</number>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="2">
+              <widget class="QPushButton" name="pl11AWrPButton">
+               <property name="text">
+                <string>Write</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <spacer name="verticalSpacer_4">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Vertical</enum>
             </property>
-           </widget>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="DecorLabel">
+           <widget class="QLabel" name="PL11ALabel">
             <property name="minimumSize">
              <size>
               <width>250</width>
@@ -401,10 +651,35 @@
              </font>
             </property>
             <property name="text">
-             <string>DeCoR</string>
+             <string>PL1.1_A</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="Line" name="line_9">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="8" column="0">
+           <widget class="QPushButton" name="sendFlTaskPButton">
+            <property name="text">
+             <string>Send Test FT</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="QPushButton" name="writeFlTaskPButton">
+            <property name="text">
+             <string>Write Test FT</string>
             </property>
            </widget>
           </item>
@@ -421,16 +696,33 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QPushButton" name="DCRModeOffPButton">
+          <item row="8" column="1">
+           <widget class="QPushButton" name="checkFlTaskPButton">
+            <property name="text">
+             <string>Check Test FT</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="Line" name="line_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QLabel" name="label_5">
             <property name="minimumSize">
              <size>
-              <width>120</width>
+              <width>0</width>
               <height>30</height>
              </size>
             </property>
             <property name="text">
-             <string>Off</string>
+             <string>Modes</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -446,19 +738,6 @@
              <string>FlightTask</string>
             </property>
            </widget>
-          </item>
-          <item row="10" column="0" colspan="2">
-           <spacer name="verticalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
           </item>
           <item row="5" column="0">
            <widget class="QPushButton" name="DCRModePausePButton">
@@ -489,64 +768,55 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="0">
-           <widget class="QPushButton" name="sendFlTaskPButton">
-            <property name="text">
-             <string>Send Test FT</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="1">
-           <widget class="QPushButton" name="checkFlTaskPButton">
-            <property name="text">
-             <string>Check Test FT</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QLabel" name="label_5">
+          <item row="5" column="1">
+           <widget class="QPushButton" name="DCRModeOffPButton">
             <property name="minimumSize">
              <size>
-              <width>0</width>
+              <width>120</width>
               <height>30</height>
              </size>
             </property>
             <property name="text">
-             <string>Modes</string>
+             <string>Off</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="DecorLabel">
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>DeCoR</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="Line" name="line_3">
+          <item row="10" column="0" colspan="2">
+           <spacer name="verticalSpacer_3">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Vertical</enum>
             </property>
-           </widget>
-          </item>
-          <item row="9" column="0">
-           <widget class="QPushButton" name="writeFlTaskPButton">
-            <property name="text">
-             <string>Write Test FT</string>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
             </property>
-           </widget>
+           </spacer>
           </item>
          </layout>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>921</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>

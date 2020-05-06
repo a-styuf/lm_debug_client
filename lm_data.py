@@ -120,6 +120,14 @@ class LMData:
                 req_param_dict["offset"] = 4
             elif mode in "pn_dcr_mode":
                 req_param_dict["offset"] = 8
+            elif mode in "pl11_a_outputs":
+                req_param_dict["offset"] = 9
+            elif mode in "pl11_b_outputs":
+                req_param_dict["offset"] = 10
+            elif mode in "pl12_outputs":
+                req_param_dict["offset"] = 11
+            elif mode in "pl20_outputs":
+                req_param_dict["offset"] = 12
             elif mode in "dbg_cyclogram_start":
                 req_param_dict["offset"] = 17
             else:

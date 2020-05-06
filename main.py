@@ -8,9 +8,11 @@ import time
 import os
 import data_vis
 import can_unit
+import pay_load
 
 
-version = "0.4.0"
+version = "0.5.0"
+
 
 class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
     def __init__(self):
@@ -53,6 +55,10 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.DCRModeFlightTaskPButton.clicked.connect(self.set_dcr_mode_flight_task)
         self.DCRModePausePButton.clicked.connect(self.set_dcr_mode_pause)
         self.DCRModeOffPButton.clicked.connect(self.set_dcr_mode_off)
+        # работа с ПН1.1
+        self.pl11a = pay_load.PayLoad_11(lm=self.lm)
+
+        self.pl11ASetIKUPButton.clicked.connect(self.set_pl11a_iku)
         # обновление gui
         self.DataUpdateTimer = QtCore.QTimer()
         self.DataUpdateTimer.timeout.connect(self.update_ui)
@@ -152,6 +158,12 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
 
     def set_dcr_mode_off(self):
         self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x00])
+        pass
+
+    # управление ПН1.1А
+    def set_pl11a_iku(self):
+        self.pl11a.set_out(rst_fpga=self.pl11AResetFPGAChBox.isChecked(),
+                           rst_leon=self.pl11AResetMCUChBox.isChecked())
         pass
 
     # LOGs #
