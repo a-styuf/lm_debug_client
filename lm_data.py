@@ -46,6 +46,14 @@ class LMData:
         self.general_data = []
         self.graph_interval = 3600
         # заготовка для хранения и отображения параметров работы прибора
+
+        # заготовка для хранения переменных общения с ПН1.1
+        self.pl_iss_data = {"pl11_a": [],
+                            "pl11_b": [],
+                            "pl12": [],
+                            "pl20": []
+        }
+        #
         self._close_event = threading.Event()
         self.parc_thread = threading.Thread(target=self.parc_data, args=(), daemon=True)
         self.data_lock = threading.Lock()
@@ -199,14 +207,47 @@ class LMData:
         self._print("read <%s>" % mode)
         self.usb_can.request(**req_param_dict)
 
-    def send_start_single_cyclogram_num(self, cyclogram_num):
-        pass
+    def send_iss_instamessage(self, pl_type="pl11_a", data=None):
+        req_param_dict = {"can_num": 0,
+                          "dev_id": self.address,
+                          "mode": "write",
+                          "var_id": 9,
+                          "offset": 0,
+                          "d_len": 128,
+                          "data": data}
+        if pl_type is "pl11_a":
+            req_param_dict["offset"] = 0*128
+        elif pl_type is "pl11_b":
+            req_param_dict["offset"] = 1*128
+        elif pl_type is "pl12":
+            req_param_dict["offset"] = 2*128
+        elif pl_type is "pl20":
+            req_param_dict["offset"] = 3*128
+        else:
+            raise ValueError("Incorrect method parameter <mode>")
+        self._print("send instamessage <%s>" % pl_type)
+        self.usb_can.request(**req_param_dict)
 
-    def send_start_cyclic_cyclograms(self):
-        pass
-
-    def send_stop_any_cyclograms(self):
-        pass
+    def read_iss_instamessage(self, pl_type="pl11_a"):
+        req_param_dict = {"can_num": 0,
+                          "dev_id": self.address,
+                          "mode": "read",
+                          "var_id": 9,
+                          "offset": 0,
+                          "d_len": 128,
+                          "data": []}
+        if pl_type is "pl11_a":
+            req_param_dict["offset"] = 0*128
+        elif pl_type is "pl11_b":
+            req_param_dict["offset"] = 1*128
+        elif pl_type is "pl12":
+            req_param_dict["offset"] = 2*128
+        elif pl_type is "pl20":
+            req_param_dict["offset"] = 3*128
+        else:
+            raise ValueError("Incorrect method parameter <pl_type>")
+        self._print("read instamessage <%s>" % pl_type)
+        self.usb_can.request(**req_param_dict)
 
     def parc_data(self):
         while True:
@@ -231,6 +272,10 @@ class LMData:
                     pass
                 elif var_id == 4:  # статусные регистры
                     self._print("process cmd_regs <var_id = %d, offset %d>:" % (var_id, offset), data)
+                    pass
+                elif var_id == 9:  # результат общения с ПН
+                    self._print("process instamessage <var_id = %d, offset %d>:" % (var_id, offset), list_to_str(data))
+                    self.parc_instamessage_data(offset, data)
                     pass
             if self._close_event.is_set() is True:
                 self._close_event.clear()
@@ -278,6 +323,29 @@ class LMData:
                 self.general_data.pop(0)
         pass
 
+    # pl_iss instamessage data #
+    def parc_instamessage_data(self, offset, data):
+        try:
+            leng = (data[63] & 0x1F) + 1
+            leng = 30 if leng > 30 else leng
+        except IndexError:
+            return
+        u32_data = []
+        for num in range(32):  # 2 - ctrl_byte & address, leng - data
+            try:
+                u32_data.append((data[0+num*2] << 16) + (data[1+num*2] << 0))
+            except IndexError:
+                u32_data.append(0x00000000)
+        if offset == 0*128:
+            self.pl_iss_data["pl11_a"] = u32_data
+        elif offset == 1*128:
+            self.pl_iss_data["pl11_b"] = u32_data
+        elif offset == 2*128:
+            self.pl_iss_data["pl12"] = u32_data
+        elif offset == 3*128:
+            self.pl_iss_data["pl20"] = u32_data
+
+    # LOG data #
     def get_log_file_title(self):
         name_str = ""
         return name_str

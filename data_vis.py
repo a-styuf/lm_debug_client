@@ -49,7 +49,7 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
         #
         self.copy_data_lock = threading.Lock()
         # создание графика с думя осями
-        self._check_box_state_list = [[0, 0], [1, 0], [0, 1]]
+        self._check_box_state_list = [[0, 0], [0, 0], [0, 0]]
         #
         self.pi = self.dataGraphGView.getPlotItem()  # для сокращения кода
         self.vb2 = pg.ViewBox()  # создаем ViewBox для отрисовки дополнительной оси и графика для него
@@ -225,7 +225,7 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
         """
         plot_curve_item = pg.PlotDataItem(data_x, data_y)
         self.pi.legend.addItem(plot_curve_item, name)
-        pen_color_list = ["or", "sb", "g", "c", "m", "y", "wh"]
+        pen_color_list = ["or", "sb", "g", "c", "m", "y", "wh", "sgr"]
         pen_style_list = [QtCore.Qt.SolidLine,
                           QtCore.Qt.DashLine,
                           QtCore.Qt.DashDotLine,
@@ -234,11 +234,15 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
                           QtCore.Qt.DashDotDotLine]
         pen_width = 2
         try:
+            print(line_style_val % len(pen_color_list), len(pen_color_list))
             color = self.clr_cd(pen_color_list[line_style_val % len(pen_color_list)])
-            style = pen_style_list[(line_style_val // len(pen_style_list)) % len(pen_color_list)]
+            print((line_style_val // len(pen_color_list)) % len(pen_style_list), len(pen_style_list))
+            style = pen_style_list[(line_style_val // len(pen_color_list)) % len(pen_style_list)]
+            self._print("plot_item_from_num: ", color, style)
             plot_curve_item.setPen({"color": color, "style": style, "width": pen_width})
-        except IndexError:
+        except IndexError as error:
             plot_curve_item.setPen({"color": self.clr_cd("wh"), "style": QtCore.Qt.SolidLine, "width": pen_width})
+            self._print("plot_item_from_num error: ", error)
         return plot_curve_item
 
     def set_name(self, name):
@@ -402,7 +406,7 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
         self.gunit_list = []
         # работа с кнопками
         self.addUnitPButton.clicked.connect(self.add_unit)
-        self.removeUnitPButton.clicked.connect(self.units.delete_unit)
+        self.removeUnitPButton.clicked.connect(self.delete_unit)
         # обновление gui
         self.redraw_period = 500
         self.DataUpdateTimer = QtCore.QTimer()
@@ -491,6 +495,17 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
         # print("set", self.table_ch_box_state_list)
         pass
 
+    def _clear_state_check(self):
+        for row in range(len(self.table_ch_box_state_list)):
+            try:
+                self.check_box_list[row][0].setChecked(0)
+                self.check_box_list[row][1].setChecked(0)
+            except IndexError as error:
+                # self._print(error)
+                break
+        # print("set", self.table_ch_box_state_list)
+        pass
+
     def set_graph_data(self, data):
         self.data_list = copy.deepcopy(data)
         self.reset_graph_data()
@@ -503,6 +518,13 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
     def add_unit(self):
         self.units.add_unit()
         self.reset_graph_data()
+        self._clear_state_check()
+
+    def delete_unit(self):
+        self.units.delete_unit()
+        self.set_active_unit_ch_box_list()
+        self.reset_graph_data()
+
 
     def update_ui(self):
         # перерисуем графики
@@ -526,5 +548,10 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
 if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
     app = QtWidgets.QApplication(sys.argv)
     ex = Widget()
+    #
+    data_list = [["Time, s", [0, 1, 2]]]
+    data_list.extend(["Example 1, SmTh", [1, 2, 3+i*0.001]] for i in range(100))
+    #
+    ex.set_graph_data(data_list)
     ex.show()
     sys.exit(app.exec_())

@@ -11,7 +11,7 @@ import can_unit
 import pay_load
 
 
-version = "0.5.0"
+version = "0.6.0"
 
 
 class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
@@ -56,7 +56,10 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.DCRModePausePButton.clicked.connect(self.set_dcr_mode_pause)
         self.DCRModeOffPButton.clicked.connect(self.set_dcr_mode_off)
         # работа с ПН1.1
-        self.pl11a = pay_load.PayLoad_11(lm=self.lm)
+        self.pl11a = pay_load.PayLoad_11(self, lm=self.lm)
+        self.pl11a.instamessage_signal.connect(self.read_word_slot)
+        self.pl11AWrPButton.clicked.connect(self.write_word)
+        self.pl11ARdPButton.clicked.connect(self.read_word)
 
         self.pl11ASetIKUPButton.clicked.connect(self.set_pl11a_iku)
         # обновление gui
@@ -165,6 +168,41 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.pl11a.set_out(rst_fpga=self.pl11AResetFPGAChBox.isChecked(),
                            rst_leon=self.pl11AResetMCUChBox.isChecked())
         pass
+
+    def write_word(self):
+        try:
+            u32_addr = self.get_u32_from_ledit(self.pl11AWrAddrLEdit)
+            u32_word = self.get_u32_from_ledit(self.pl11AWrDataLEdit)
+            self.pl11a.write_data(u32_addr=u32_addr, u32_word=u32_word)
+        except Exception as error:
+            print("main->write_word->", error)
+        pass
+
+    def read_word(self):
+        try:
+            u32_addr = self.get_u32_from_ledit(self.pl11ARdAddrLEdit)
+            self.pl11a.read_req_data(u32_addr=u32_addr)
+        except Exception as error:
+            print("main->read_word->", error)
+        pass
+
+    def read_word_slot(self, word):
+        self.set_u32_to_ledit(self.pl11ARdDataLEdit, word)
+
+    def get_u32_from_ledit(self, line_edit):
+        str = line_edit.text()
+        str_list = str.split(" ")
+        str = "".join(str_list)
+        u32val = 0x00000000
+        try:
+            u32val = int(str, 16)
+        except ValueError:
+            line_edit.setText("0000 0000")
+        return u32val
+
+    def set_u32_to_ledit(self, line_edit, u32val):
+        line_edit.setText("%04X %04X" % ((u32val >> 16) & 0xFF, (u32val >> 0) & 0xFF))
+        return u32val
 
     # LOGs #
     @staticmethod
