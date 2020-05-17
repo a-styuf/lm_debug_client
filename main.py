@@ -9,9 +9,9 @@ import os
 import data_vis
 import can_unit
 import pay_load
+import cyclogram_result
 
-
-version = "0.6.0"
+version = "0.7.0"
 
 
 class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
@@ -22,9 +22,9 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         self.setWindowIcon(QtGui.QIcon('icon.png'))
-        self.setWindowTitle("Norby - Linking Module. Version {:s}.".format(version))
+        self.setWindowTitle("Norby - Linking Module. Version {:s}".format(version))
         # класс для управления устройством
-        self.lm = lm_data.LMData(serial_numbers=["205135995748", "205B359A", "2056359A", "2059359A"], debug=True, address=6)
+        self.lm = lm_data.LMData(serial_numbers=["0000ACF0", "205135995748", "205B359A", "2056359A", "2059359A"], debug=True, address=6)
         self.connectionPButt.clicked.connect(self.lm.usb_can.reconnect)
         # таб с кан-терминалом
         self.can_usb_client_widget = can_unit.ClientGUIWindow(self, interface=self.lm.usb_can)
@@ -50,24 +50,37 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.singleCyclPButton.clicked.connect(self.single_cyclogram)
         self.startCyclsPButton.clicked.connect(self.start_cyclograms)
         self.stopCyclsPButton.clicked.connect(self.stop_cyclograms)
+        self.readCyclResPButton.clicked.connect(self.read_cyclogram_result)
+        self.readCyclResTimer = QtCore.QTimer()
+        self.readCyclResCounter = 0
+        # окно с результатом циклограммы
+        self.cycl_result_win = cyclogram_result.Widget()
         # работа с ДеКоР
         self.DCRModeDefaultPButton.clicked.connect(self.set_dcr_mode_default)
         self.DCRModeFlightTaskPButton.clicked.connect(self.set_dcr_mode_flight_task)
         self.DCRModePausePButton.clicked.connect(self.set_dcr_mode_pause)
         self.DCRModeOffPButton.clicked.connect(self.set_dcr_mode_off)
-        # работа с ПН1.1
-        self.pl11a = pay_load.PayLoad_11(self, lm=self.lm)
-        self.pl11a.instamessage_signal.connect(self.read_word_slot)
-        self.pl11AWrPButton.clicked.connect(self.write_word)
-        self.pl11ARdPButton.clicked.connect(self.read_word)
+        # работа с ПН1.1А
+        self.pl11a = pay_load.PayLoad_11(self, lm=self.lm, pl_type="pl11_a")
+        self.pl11a.instamessage_signal.connect(self.pl11a_read_word_slot)
+        self.pl11AWrPButton.clicked.connect(self.pl11a_write_word)
+        self.pl11ARdPButton.clicked.connect(self.pl11a_read_word)
 
-        self.pl11ASetIKUPButton.clicked.connect(self.set_pl11a_iku)
+        self.pl11ASetIKUPButton.clicked.connect(self.pl11a_set_iku)
+        # работа с ПН1.1Б
+        self.pl11b = pay_load.PayLoad_11(self, lm=self.lm, pl_type="pl11_b")
+        self.pl11b.instamessage_signal.connect(self.pl11b_read_word_slot)
+        self.pl11BWrPButton.clicked.connect(self.pl11b_write_word)
+        self.pl11BRdPButton.clicked.connect(self.pl11b_read_word)
+
+        self.pl11BSetIKUPButton.clicked.connect(self.pl11b_set_iku)
         # обновление gui
         self.DataUpdateTimer = QtCore.QTimer()
         self.DataUpdateTimer.timeout.connect(self.update_ui)
         self.DataUpdateTimer.start(1000)
         # логи
         self.data_log_file = None
+        self.cycl_res_log_file = None
         self.log_str = ""
         self.recreate_log_files()
         self.logRestartPButt.clicked.connect(self.recreate_log_files)
@@ -135,16 +148,35 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         except ValueError:
             cyclogram_num = 0
             self.singleCyclSBox.setValue(0)
-        self.lm.send_cmd_reg(mode="dbg_cyclogram_start", data=[0x01, cyclogram_num])
+        self.lm.send_cmd_reg(mode="cyclogram_start", data=[0x01, cyclogram_num])
         pass
 
     def start_cyclograms(self):
-        self.lm.send_cmd_reg(mode="dbg_cyclogram_start", data=[0x02, 0x00])
+        self.lm.send_cmd_reg(mode="cyclogram_start", data=[0x02, 0x00])
         pass
 
     def stop_cyclograms(self):
-        self.lm.send_cmd_reg(mode="dbg_cyclogram_start", data=[0x00, 0x00])
+        self.lm.send_cmd_reg(mode="cyclogram_start", data=[0x00, 0x00])
         pass
+
+    def read_cyclogram_result(self):
+        self.readCyclResTimer.singleShot(50, self.read_cyclogram_result_body)
+        self.readCyclResPButton.setEnabled(False)
+        pass
+
+    def read_cyclogram_result_body(self):
+        if self.readCyclResCounter < 17:
+            self.readCyclResTimer.singleShot(200, self.read_cyclogram_result_body)
+            self.lm.read_cyclogram_result(self.readCyclResCounter)
+            self.readCyclResCounter += 1
+        else:
+            self.readCyclResPButton.setEnabled(True)
+            self.readCyclResCounter = 0
+            self.cycl_res_log_file = self.create_log_file(prefix="Cyclogram_Result", sub_dir="Cyclogram", extension=".txt")
+            self.cycl_res_log_file.write(self.lm.get_cyclogram_result_str())
+            self.cycl_res_log_file.close()
+            self.cycl_result_win.show()
+            self.cycl_result_win.cyclResultTEdit.setText(self.lm.get_cyclogram_result_str())
 
     # управление ДеКоР
     def set_dcr_mode_default(self):
@@ -163,13 +195,18 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x00])
         pass
 
-    # управление ПН1.1А
-    def set_pl11a_iku(self):
+    # управление ПН1.1
+    def pl11a_set_iku(self):
         self.pl11a.set_out(rst_fpga=self.pl11AResetFPGAChBox.isChecked(),
                            rst_leon=self.pl11AResetMCUChBox.isChecked())
         pass
 
-    def write_word(self):
+    def pl11b_set_iku(self):
+        self.pl11b.set_out(rst_fpga=self.pl11BResetFPGAChBox.isChecked(),
+                           rst_leon=self.pl11BResetMCUChBox.isChecked())
+        pass
+
+    def pl11a_write_word(self):
         try:
             u32_addr = self.get_u32_from_ledit(self.pl11AWrAddrLEdit)
             u32_word = self.get_u32_from_ledit(self.pl11AWrDataLEdit)
@@ -178,7 +215,16 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             print("main->write_word->", error)
         pass
 
-    def read_word(self):
+    def pl11b_write_word(self):
+        try:
+            u32_addr = self.get_u32_from_ledit(self.pl11BWrAddrLEdit)
+            u32_word = self.get_u32_from_ledit(self.pl11BWrDataLEdit)
+            self.pl11b.write_data(u32_addr=u32_addr, u32_word=u32_word)
+        except Exception as error:
+            print("main->write_word->", error)
+        pass
+
+    def pl11a_read_word(self):
         try:
             u32_addr = self.get_u32_from_ledit(self.pl11ARdAddrLEdit)
             self.pl11a.read_req_data(u32_addr=u32_addr)
@@ -186,8 +232,19 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             print("main->read_word->", error)
         pass
 
-    def read_word_slot(self, word):
+    def pl11b_read_word(self):
+        try:
+            u32_addr = self.get_u32_from_ledit(self.pl11BRdAddrLEdit)
+            self.pl11b.read_req_data(u32_addr=u32_addr)
+        except Exception as error:
+            print("main->read_word->", error)
+        pass
+
+    def pl11a_read_word_slot(self, word):
         self.set_u32_to_ledit(self.pl11ARdDataLEdit, word)
+
+    def pl11b_read_word_slot(self, word):
+        self.set_u32_to_ledit(self.pl11BRdDataLEdit, word)
 
     def get_u32_from_ledit(self, line_edit):
         str = line_edit.text()
@@ -201,16 +258,16 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         return u32val
 
     def set_u32_to_ledit(self, line_edit, u32val):
-        line_edit.setText("%04X %04X" % ((u32val >> 16) & 0xFF, (u32val >> 0) & 0xFF))
+        line_edit.setText("%04X %04X" % ((u32val >> 16) & 0xFFFF, (u32val >> 0) & 0xFFFF))
         return u32val
 
     # LOGs #
     @staticmethod
-    def create_log_file(file=None, prefix="", extension=".csv"):
+    def create_log_file(file=None, sub_dir="Log", prefix="", extension=".csv"):
         dir_name = "Logs"
-        sub_dir_name = dir_name + "\\" + time.strftime("%Y_%m_%d", time.localtime()) + " Log"
+        sub_dir_name = dir_name + "\\" + time.strftime("%Y_%m_%d", time.localtime()) + " " + sub_dir
         sub_sub_dir_name = sub_dir_name + "\\" + time.strftime("%Y_%m_%d %H-%M-%S ",
-                                                               time.localtime()) + "Log"
+                                                               time.localtime()) + sub_dir
         try:
             os.makedirs(sub_sub_dir_name)
         except (OSError, AttributeError) as error:

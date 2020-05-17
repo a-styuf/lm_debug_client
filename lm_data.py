@@ -17,7 +17,7 @@ class LMData:
         self.address = 1
         self.baudrate = 9600
         self.serial_numbers = []
-        self.debug = []
+        self.debug = True
         self.crc_check = True
         for key in sorted(kw):
             if key == "serial_numbers":
@@ -39,14 +39,17 @@ class LMData:
         # интерфейс работы с ITB - VCP-CAN
         self.usb_can = usb_can_bridge.MyUSBCANDevice(baudrate=self.baudrate,
                                                      serial_numbers=self.serial_numbers,
-                                                     debug=False,
+                                                     debug= False,  # self.debug,
                                                      crc=self.crc_check,
                                                      )
         # заготовка для хранения данных прибора
         self.general_data = []
         self.graph_interval = 3600
         # заготовка для хранения и отображения параметров работы прибора
-
+        # заготовка для хранения результата циклограммы
+        self.cycl_result_offset = 1152
+        self.cycl_128B_part_num = 17
+        self.cyclogram_result_data = [[] for i in range(self.cycl_128B_part_num)]
         # заготовка для хранения переменных общения с ПН1.1
         self.pl_iss_data = {"pl11_a": [],
                             "pl11_b": [],
@@ -117,27 +120,27 @@ class LMData:
                               "d_len": len(data),
                               "data": data}
             if mode in "dbg_led_test":
-                req_param_dict["offset"] = 16
+                req_param_dict["offset"] = 0x80
             elif mode in "lm_mode":
-                req_param_dict["offset"] = 0
+                req_param_dict["offset"] = 0x00
             elif mode in "lm_pn_pwr_switch":
-                req_param_dict["offset"] = 1
+                req_param_dict["offset"] = 0x01
             elif mode in "pn_inhibit":
-                req_param_dict["offset"] = 2
+                req_param_dict["offset"] = 0x02
             elif mode in "all_mem_rd_ptr":
-                req_param_dict["offset"] = 4
+                req_param_dict["offset"] = 0x0A
             elif mode in "pn_dcr_mode":
-                req_param_dict["offset"] = 8
+                req_param_dict["offset"] = 0x0E
             elif mode in "pl11_a_outputs":
-                req_param_dict["offset"] = 9
+                req_param_dict["offset"] = 0x0F
             elif mode in "pl11_b_outputs":
-                req_param_dict["offset"] = 10
+                req_param_dict["offset"] = 0x10
             elif mode in "pl12_outputs":
-                req_param_dict["offset"] = 11
+                req_param_dict["offset"] = 0x11
             elif mode in "pl20_outputs":
-                req_param_dict["offset"] = 12
-            elif mode in "dbg_cyclogram_start":
-                req_param_dict["offset"] = 17
+                req_param_dict["offset"] = 0x12
+            elif mode in "cyclogram_start":
+                req_param_dict["offset"] = 0x13
             else:
                 raise ValueError("Incorrect method parameter <mode>")
             self._print("send com_reg<%s>" % mode)
@@ -186,6 +189,19 @@ class LMData:
         else:
             raise ValueError("Incorrect method parameter <mode>")
         self._print("read tmi <%s>" % mode)
+        self.usb_can.request(**req_param_dict)
+
+    def read_cyclogram_result(self, part_num=0):
+        req_param_dict = {"can_num": 0,
+                          "dev_id": self.address,
+                          "mode": "read",
+                          "var_id": 5,
+                          "offset": 0,
+                          "d_len": 128,
+                          "data": []}
+        part_num = 16 if part_num > self.cycl_128B_part_num else part_num
+        req_param_dict["offset"] = self.cycl_result_offset + part_num * 128
+        self._print("read cyclogram result <offset %d>" % req_param_dict["offset"])
         self.usb_can.request(**req_param_dict)
 
     def read_mem(self, mode="mem_all"):
@@ -261,6 +277,8 @@ class LMData:
                     parced_data = norby_data.frame_parcer(data)
                     if offset == 256:
                         self.manage_general_data(parced_data)
+                    elif 1152 <= offset < 3328:
+                        self.manaage_cyclogram_result_data(offset, data)
                     pass
                 elif var_id == 7:  # переменная памяти
                     self._print("process mem <var_id = %d, offset %d>" % (var_id, offset))
@@ -322,6 +340,19 @@ class LMData:
             while self.general_data[0][1][-1] - self.general_data[0][1][0] >= interval_s:
                 self.general_data.pop(0)
         pass
+
+    # cyclogram result_data
+    def manaage_cyclogram_result_data(self, offset, data):
+        part_num = (offset - self.cycl_result_offset) // 128
+        self.cyclogram_result_data[part_num] = data
+        pass
+
+    def get_cyclogram_result_str(self):
+        str = ""
+        with self.data_lock:
+            for part in self.cyclogram_result_data:
+                str += list_to_str(part) + '\n'
+        return str
 
     # pl_iss instamessage data #
     def parc_instamessage_data(self, offset, data):

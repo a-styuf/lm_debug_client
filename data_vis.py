@@ -234,9 +234,7 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
                           QtCore.Qt.DashDotDotLine]
         pen_width = 2
         try:
-            print(line_style_val % len(pen_color_list), len(pen_color_list))
             color = self.clr_cd(pen_color_list[line_style_val % len(pen_color_list)])
-            print((line_style_val // len(pen_color_list)) % len(pen_style_list), len(pen_style_list))
             style = pen_style_list[(line_style_val // len(pen_color_list)) % len(pen_style_list)]
             self._print("plot_item_from_num: ", color, style)
             plot_curve_item.setPen({"color": color, "style": style, "width": pen_width})

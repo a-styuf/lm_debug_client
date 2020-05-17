@@ -6,6 +6,7 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 import time
 
+
 class PayLoad_11(QtCore.QObject):
     instamessage_signal = QtCore.pyqtSignal(int)
 
@@ -66,7 +67,7 @@ class PayLoad_11(QtCore.QObject):
         elif self.read_counter == 2:
             self.read_counter = 0
             try:
-                self.instamessage_signal.emit(self.lm.pl_iss_data["pl11_a"][1])
+                self.instamessage_signal.emit(self.lm.pl_iss_data[self.pl_type][1])
             except Exception as error:
                 pass
                 self._print(error)
