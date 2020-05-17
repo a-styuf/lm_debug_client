@@ -134,3 +134,6 @@ dmypy.json
 .pyre/
 
 .idea/vcs.xml
+
+# my ignore
+/lm_debug_clien/*
