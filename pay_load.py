@@ -5,6 +5,7 @@
 """
 from PyQt5 import QtWidgets, QtCore, QtGui
 import time
+import lm_data
 
 
 class PayLoad_11(QtCore.QObject):
@@ -25,7 +26,7 @@ class PayLoad_11(QtCore.QObject):
         # создание очереди заданий для чтения
         self.read_data_timer = QtCore.QTimer()
         self.read_counter = 0
-        self.readed_data = []
+        self.readed_data = None
         pass
 
     def set_out(self, rst_fpga=True, rst_leon=True):
@@ -49,6 +50,7 @@ class PayLoad_11(QtCore.QObject):
 
     def read_req_data(self, u32_addr=None):
         if self.read_counter == 0:
+            self.readed_data = None
             # запись запроса для общения с уровнем приложения
             ctrl_byte = 0x80
             data_len = 1
@@ -58,19 +60,22 @@ class PayLoad_11(QtCore.QObject):
             self.lm.send_iss_instamessage(pl_type=self.pl_type, data=send_data)
             #
             self.read_counter = 1
-            self.read_data_timer.singleShot(100, self.read_req_data)
+            self.read_data_timer.singleShot(200, self.read_req_data)
         elif self.read_counter == 1:
             self.lm.read_iss_instamessage(pl_type=self.pl_type)
             #
             self.read_counter = 2
-            self.read_data_timer.singleShot(200, self.read_req_data)
+            self.read_data_timer.singleShot(300, self.read_req_data)
         elif self.read_counter == 2:
             self.read_counter = 0
+
             try:
                 self.instamessage_signal.emit(self.lm.pl_iss_data[self.pl_type][1])
+                self._print("read u32_word%08X" % self.lm.pl_iss_data[self.pl_type][1])
             except Exception as error:
-                pass
                 self._print(error)
+                self.instamessage_signal.emit(0)
+                self._print("error read u32_word")
         pass
 
     @staticmethod
@@ -86,11 +91,15 @@ class PayLoad_11(QtCore.QObject):
 
     @staticmethod
     def get_time():
-        return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f:" % time.perf_counter()).split(".")[1]
+        return time.strftime("%H-%M-%S", time.localtime()) + " " + ("%.3f:" % time.perf_counter())
 
     def _print(self, *args):
         if self.debug:
-            print_str = "dvw: " + self.get_time()
+            print_str = "pld: " + self.get_time()
             for arg in args:
                 print_str += " " + str(arg)
             print(print_str)
+
+
+if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
+    pass

@@ -11,7 +11,7 @@ import can_unit
 import pay_load
 import cyclogram_result
 
-version = "0.7.0"
+version = "0.8.1"
 
 
 class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
@@ -46,6 +46,9 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.pwr_channels_list = [self.lmChannelsChBox, self.pl11aChannelsChBox, self.pl11bChannelsChBox,
                                   self.pl12ChannelsChBox, self.pl20ChannelsChBox, self.dcr1ChannelsChBox,
                                   self.dcr2ChannelsChBox]
+        # режим констант
+        self.constModeOnPButton.clicked.connect(self.constant_mode_on)
+        self.constModeOffPButton.clicked.connect(self.constant_mode_off)
         # работа с циклограммами
         self.singleCyclPButton.clicked.connect(self.single_cyclogram)
         self.startCyclsPButton.clicked.connect(self.start_cyclograms)
@@ -66,6 +69,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.pl11AWrPButton.clicked.connect(self.pl11a_write_word)
         self.pl11ARdPButton.clicked.connect(self.pl11a_read_word)
 
+        self.pl11TestTimer = QtCore.QTimer()
+
         self.pl11ASetIKUPButton.clicked.connect(self.pl11a_set_iku)
         # работа с ПН1.1Б
         self.pl11b = pay_load.PayLoad_11(self, lm=self.lm, pl_type="pl11_b")
@@ -85,7 +90,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.recreate_log_files()
         self.logRestartPButt.clicked.connect(self.recreate_log_files)
 
-    # UI #
+        # UI #
     def update_ui(self):
         try:
             # отрисовка графика
@@ -127,6 +132,15 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             if channel_ChBox.isChecked():
                 channel_state |= 1 << num
         self.lm.send_cmd_reg(mode="lm_pn_pwr_switch", data=[channel_state & 0xFF])
+        pass
+
+    # constant mode
+    def constant_mode_on(self):
+        self.lm.send_cmd_reg(mode="const_mode", data=[0x01])
+        pass
+
+    def constant_mode_off(self):
+        self.lm.send_cmd_reg(mode="const_mode", data=[0x00])
         pass
 
     # general data_read
@@ -174,9 +188,10 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             self.readCyclResCounter = 0
             self.cycl_res_log_file = self.create_log_file(prefix="Cyclogram_Result", sub_dir="Cyclogram", extension=".txt")
             self.cycl_res_log_file.write(self.lm.get_cyclogram_result_str())
+            self.cycl_res_log_file.write(self.lm.get_parc_cyclogram_result())
             self.cycl_res_log_file.close()
             self.cycl_result_win.show()
-            self.cycl_result_win.cyclResultTEdit.setText(self.lm.get_cyclogram_result_str())
+            self.cycl_result_win.cyclResultTEdit.setText(self.lm.get_cyclogram_result_str() + self.lm.get_parc_cyclogram_result())
 
     # управление ДеКоР
     def set_dcr_mode_default(self):
@@ -228,6 +243,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         try:
             u32_addr = self.get_u32_from_ledit(self.pl11ARdAddrLEdit)
             self.pl11a.read_req_data(u32_addr=u32_addr)
+            self.pl11ARdPButton.setEnabled(False)
         except Exception as error:
             print("main->read_word->", error)
         pass
@@ -236,15 +252,18 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         try:
             u32_addr = self.get_u32_from_ledit(self.pl11BRdAddrLEdit)
             self.pl11b.read_req_data(u32_addr=u32_addr)
+            self.pl11BRdPButton.setEnabled(False)
         except Exception as error:
             print("main->read_word->", error)
         pass
 
     def pl11a_read_word_slot(self, word):
         self.set_u32_to_ledit(self.pl11ARdDataLEdit, word)
+        self.pl11ARdPButton.setEnabled(True)
 
     def pl11b_read_word_slot(self, word):
         self.set_u32_to_ledit(self.pl11BRdDataLEdit, word)
+        self.pl11BRdPButton.setEnabled(True)
 
     def get_u32_from_ledit(self, line_edit):
         str = line_edit.text()

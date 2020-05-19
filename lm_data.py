@@ -39,7 +39,7 @@ class LMData:
         # интерфейс работы с ITB - VCP-CAN
         self.usb_can = usb_can_bridge.MyUSBCANDevice(baudrate=self.baudrate,
                                                      serial_numbers=self.serial_numbers,
-                                                     debug= False,  # self.debug,
+                                                     debug=False,  # self.debug,
                                                      crc=self.crc_check,
                                                      )
         # заготовка для хранения данных прибора
@@ -141,6 +141,8 @@ class LMData:
                 req_param_dict["offset"] = 0x12
             elif mode in "cyclogram_start":
                 req_param_dict["offset"] = 0x13
+            elif mode in "const_mode":
+                req_param_dict["offset"] = 0x15
             else:
                 raise ValueError("Incorrect method parameter <mode>")
             self._print("send com_reg<%s>" % mode)
@@ -156,17 +158,29 @@ class LMData:
                               "d_len": leng,
                               "data": []}
             if mode in "dbg_led_test":
-                req_param_dict["offset"] = 16
+                req_param_dict["offset"] = 0x80
             elif mode in "lm_mode":
-                req_param_dict["offset"] = 0
+                req_param_dict["offset"] = 0x00
             elif mode in "lm_pn_pwr_switch":
-                req_param_dict["offset"] = 1
+                req_param_dict["offset"] = 0x01
             elif mode in "pn_inhibit":
-                req_param_dict["offset"] = 2
+                req_param_dict["offset"] = 0x02
             elif mode in "all_mem_rd_ptr":
-                req_param_dict["offset"] = 4
-            elif mode in "dbg_cyclogram_start":
-                req_param_dict["offset"] = 17
+                req_param_dict["offset"] = 0x0A
+            elif mode in "pn_dcr_mode":
+                req_param_dict["offset"] = 0x0E
+            elif mode in "pl11_a_outputs":
+                req_param_dict["offset"] = 0x0F
+            elif mode in "pl11_b_outputs":
+                req_param_dict["offset"] = 0x10
+            elif mode in "pl12_outputs":
+                req_param_dict["offset"] = 0x11
+            elif mode in "pl20_outputs":
+                req_param_dict["offset"] = 0x12
+            elif mode in "cyclogram_start":
+                req_param_dict["offset"] = 0x13
+            elif mode in "const_mode":
+                req_param_dict["offset"] = 0x15
             else:
                 raise ValueError("Incorrect method parameter <mode>")
             self._print("read com_reg<%s>" % mode)
@@ -348,11 +362,60 @@ class LMData:
         pass
 
     def get_cyclogram_result_str(self):
-        str = ""
+        report_str = "Row cyclogram result data:\n\n"
         with self.data_lock:
             for part in self.cyclogram_result_data:
-                str += list_to_str(part) + '\n'
-        return str
+                report_str += list_to_str(part) + '\n'
+        return report_str
+
+    def get_parc_cyclogram_result(self):
+        report_str = "\nParced cyclogram result data:\n\n"
+        cycl_result = []
+        with self.data_lock:
+            cycl_result = copy.deepcopy(self.cyclogram_result_data)
+        # вычленение сырах данных
+        report_str += "\nCyclogram result PL data:\n\n"
+        bytes_num = 0
+        for body in cycl_result[1:]:
+            try:
+                if body[0] == 0xF10F:
+                    for u16_var in body[4:63]:
+                        report_str += "%04X " % u16_var
+                        bytes_num += 2
+                        if (bytes_num % 64) == 0:
+                            report_str += "\n"
+            except IndexError:
+                pass
+        report_str += "\n"
+        # вычленение сырах данных
+        report_str += "\nCyclogram result PL data (reverse byte order in u32-words, special for PL1.1):\n\n"
+        bytes_num = 0
+        word_to_print = ["", "", "", ""]
+        try:
+            for body in cycl_result[1:]:
+                if body[0] == 0xF10F:
+                    for u16_var in body[4:63]:
+                        bytes_num += 2
+                        if (bytes_num % 4) == 0:
+                            word_to_print[0] = "%02X" % ((u16_var >> 0) & 0xFF)
+                            word_to_print[1] = "%02X " % ((u16_var >> 8) & 0xFF)
+                            report_str += "".join(word_to_print)
+                            word_to_print = ["", "", "", ""]
+                        else:
+                            word_to_print[2] = "%02X" % ((u16_var >> 0) & 0xFF)
+                            word_to_print[3] = "%02X  " % ((u16_var >> 8) & 0xFF)
+                        if (bytes_num % 64) == 0:
+                            report_str += "\n"
+        except IndexError:
+            pass
+        report_str += "\n"
+        # разбор заголовка
+        report_str += "\nCyclogram result header:\n\n"
+        parced_data = norby_data.frame_parcer(cycl_result[0])
+        for data in parced_data:
+            report_str += "{:<30}".format(data[0]) + "\t{:}".format(data[1]) + "\n"
+        return report_str
+
 
     # pl_iss instamessage data #
     def parc_instamessage_data(self, offset, data):
@@ -394,7 +457,7 @@ class LMData:
 
     @staticmethod
     def get_time():
-        return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f:" % time.perf_counter()).split(".")[1]
+        return time.strftime("%H-%M-%S", time.localtime()) + " " + ("%.3f:" % time.perf_counter())
 
 
 def value_from_bound(val, val_min, val_max):

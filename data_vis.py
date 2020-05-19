@@ -121,7 +121,8 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
         if self.redraw_flag:
             self.redraw_flag = False
             try:
-                self.plot_data_item_list = self.plot_data_item_list[:len(self.data_list)]
+                if self.plot_data_item_list:
+                    self.plot_data_item_list = self.plot_data_item_list[:len(self.data_list)]
             except IndexError as error:
                 return
             #
@@ -271,7 +272,7 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
 
     @staticmethod
     def get_time():
-        return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f:" % time.perf_counter()).split(".")[1]
+        return time.strftime("%H-%M-%S", time.localtime()) + " " + ("%.3f:" % time.perf_counter())
 
 
 class Units(QtWidgets.QVBoxLayout):
@@ -370,7 +371,7 @@ class Units(QtWidgets.QVBoxLayout):
 
     @staticmethod
     def get_time():
-        return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f:" % time.perf_counter()).split(".")[1]
+        return time.strftime("%H-%M-%S", time.localtime()) + " " + ("%.3f:" % time.perf_counter())
 
 
 class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
@@ -523,7 +524,6 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
         self.set_active_unit_ch_box_list()
         self.reset_graph_data()
 
-
     def update_ui(self):
         # перерисуем графики
         for unit in self.units.unit_list:
@@ -540,7 +540,7 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
 
     @staticmethod
     def get_time():
-        return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f:" % time.perf_counter()).split(".")[1]
+        return time.strftime("%H-%M-%S", time.localtime()) + " " + ("%.3f:" % time.perf_counter())
 
 
 if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем

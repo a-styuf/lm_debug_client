@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1538</width>
-    <height>834</height>
+    <height>925</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -233,6 +233,59 @@
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="constModeLabel">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Constant Mode</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line_7">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>5</height>
+             </size>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QPushButton" name="constModeOnPButton">
+              <property name="text">
+               <string>On</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="constModeOffPButton">
+              <property name="text">
+               <string>Off</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
            <spacer name="verticalSpacer_2">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -275,7 +328,7 @@
               <property name="minimumSize">
                <size>
                 <width>250</width>
-                <height>30</height>
+                <height>25</height>
                </size>
               </property>
               <property name="font">
@@ -295,6 +348,12 @@
             </item>
             <item row="1" column="0" colspan="3">
              <widget class="Line" name="line_5">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>5</height>
+               </size>
+              </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -427,7 +486,7 @@
             <property name="minimumSize">
              <size>
               <width>250</width>
-              <height>30</height>
+              <height>25</height>
              </size>
             </property>
             <property name="font">
@@ -441,6 +500,19 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="Line" name="line_9">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>5</height>
+             </size>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
@@ -488,7 +560,7 @@
               <widget class="QLabel" name="pl11ARdAddrLabel">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>125</width>
                  <height>25</height>
                 </size>
                </property>
@@ -506,7 +578,7 @@
               <widget class="QLabel" name="pl11AWrDataLabel">
                <property name="minimumSize">
                 <size>
-                 <width>150</width>
+                 <width>125</width>
                  <height>25</height>
                 </size>
                </property>
@@ -524,7 +596,7 @@
               <widget class="QLabel" name="pl11AWrAddrLabel">
                <property name="minimumSize">
                 <size>
-                 <width>150</width>
+                 <width>125</width>
                  <height>25</height>
                 </size>
                </property>
@@ -542,7 +614,7 @@
               <widget class="QLabel" name="pl11ARdDataLabel">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>125</width>
                  <height>25</height>
                 </size>
                </property>
@@ -656,13 +728,6 @@
             </layout>
            </widget>
           </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="Line" name="line_9">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0" colspan="2">
            <widget class="QGroupBox" name="pl11AIKUGBoxGrBox">
             <property name="sizePolicy">
@@ -732,7 +797,7 @@
             </layout>
            </widget>
           </item>
-          <item row="8" column="0">
+          <item row="4" column="1">
            <spacer name="verticalSpacer_6">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -745,7 +810,20 @@
             </property>
            </spacer>
           </item>
-          <item row="7" column="0">
+          <item row="6" column="0" colspan="2">
+           <widget class="Line" name="line_11">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>5</height>
+             </size>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0" colspan="2">
            <widget class="QGroupBox" name="pl11BInterfaceGrBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -789,7 +867,7 @@
               <widget class="QLabel" name="pl11BRdAddrLabel">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>125</width>
                  <height>25</height>
                 </size>
                </property>
@@ -807,7 +885,7 @@
               <widget class="QLabel" name="pl11BWrDataLabel">
                <property name="minimumSize">
                 <size>
-                 <width>150</width>
+                 <width>125</width>
                  <height>25</height>
                 </size>
                </property>
@@ -825,7 +903,7 @@
               <widget class="QLabel" name="pl11BWrAddrLabel">
                <property name="minimumSize">
                 <size>
-                 <width>150</width>
+                 <width>125</width>
                  <height>25</height>
                 </size>
                </property>
@@ -843,7 +921,7 @@
               <widget class="QLabel" name="pl11BRdDataLabel">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>125</width>
                  <height>25</height>
                 </size>
                </property>
@@ -957,29 +1035,7 @@
             </layout>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="PL11BLabel">
-            <property name="minimumSize">
-             <size>
-              <width>250</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>PL1.1_B</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
+          <item row="7" column="0" colspan="2">
            <widget class="QGroupBox" name="pl11BIKUGBoxGrBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -1048,10 +1104,25 @@
             </layout>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="Line" name="line_11">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+          <item row="5" column="0" colspan="2">
+           <widget class="QLabel" name="PL11BLabel">
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>PL1.1_B</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -1095,6 +1166,12 @@
           </item>
           <item row="1" column="0" colspan="2">
            <widget class="Line" name="line_3">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>5</height>
+             </size>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -1176,7 +1253,7 @@
             <property name="minimumSize">
              <size>
               <width>250</width>
-              <height>30</height>
+              <height>25</height>
              </size>
             </property>
             <property name="font">
