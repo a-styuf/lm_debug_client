@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1538</width>
-    <height>925</height>
+    <width>1202</width>
+    <height>907</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,6 +15,21 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>5</number>
+    </property>
+    <property name="rightMargin">
+     <number>5</number>
+    </property>
+    <property name="bottomMargin">
+     <number>5</number>
+    </property>
+    <property name="spacing">
+     <number>5</number>
+    </property>
     <item row="1" column="1" colspan="2">
      <widget class="Line" name="line">
       <property name="sizePolicy">
@@ -26,7 +41,7 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>10</height>
+        <height>5</height>
        </size>
       </property>
       <property name="orientation">
@@ -107,7 +122,7 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>30</height>
+              <height>25</height>
              </size>
             </property>
             <property name="font">
@@ -127,6 +142,12 @@
           </item>
           <item>
            <widget class="Line" name="line_4">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>5</height>
+             </size>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -150,8 +171,32 @@
              <string>Channels</string>
             </property>
             <layout class="QGridLayout" name="gridLayout">
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
+             <property name="topMargin">
+              <number>5</number>
+             </property>
+             <property name="rightMargin">
+              <number>5</number>
+             </property>
+             <property name="bottomMargin">
+              <number>5</number>
+             </property>
              <item row="0" column="0">
               <widget class="QCheckBox" name="allChannelsChBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
                <property name="text">
                 <string>All</string>
                </property>
@@ -159,6 +204,18 @@
              </item>
              <item row="1" column="0">
               <widget class="QCheckBox" name="pl11aChannelsChBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
                <property name="text">
                 <string>PL1.1A</string>
                </property>
@@ -169,6 +226,18 @@
              </item>
              <item row="2" column="0">
               <widget class="QCheckBox" name="pl11bChannelsChBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
                <property name="text">
                 <string>PL1.1B</string>
                </property>
@@ -176,6 +245,18 @@
              </item>
              <item row="3" column="0">
               <widget class="QCheckBox" name="pl12ChannelsChBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
                <property name="text">
                 <string>PL1.2</string>
                </property>
@@ -183,6 +264,18 @@
              </item>
              <item row="0" column="1">
               <widget class="QCheckBox" name="lmChannelsChBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
                <property name="text">
                 <string>LM</string>
                </property>
@@ -190,6 +283,18 @@
              </item>
              <item row="1" column="1">
               <widget class="QCheckBox" name="pl20ChannelsChBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
                <property name="text">
                 <string>PL2.0</string>
                </property>
@@ -197,6 +302,18 @@
              </item>
              <item row="2" column="1">
               <widget class="QCheckBox" name="dcr1ChannelsChBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
                <property name="text">
                 <string>DCR1</string>
                </property>
@@ -204,6 +321,18 @@
              </item>
              <item row="3" column="1">
               <widget class="QCheckBox" name="dcr2ChannelsChBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
                <property name="text">
                 <string>DCR2</string>
                </property>
@@ -222,13 +351,6 @@
             </property>
             <property name="text">
              <string>Set power channels state</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="line_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
@@ -286,39 +408,15 @@
            </layout>
           </item>
           <item>
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <property name="horizontalSpacing">
+             <number>0</number>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
+            <property name="verticalSpacing">
+             <number>9</number>
             </property>
-           </spacer>
-          </item>
-          <item>
-           <layout class="QGridLayout" name="gridLayout_3">
-            <property name="sizeConstraint">
-             <enum>QLayout::SetMinimumSize</enum>
-            </property>
-            <item row="3" column="0" colspan="3">
-             <widget class="QPushButton" name="startCyclsPButton">
-              <property name="text">
-               <string>Start Cyclic Mode</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" colspan="3">
-             <widget class="QPushButton" name="stopCyclsPButton">
-              <property name="text">
-               <string>Stop Cyclograms</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" colspan="3">
-             <widget class="QLabel" name="label_2">
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="cyclogramControlLabel">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -346,23 +444,24 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0" colspan="3">
-             <widget class="Line" name="line_5">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>5</height>
-               </size>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+            <item row="3" column="0" colspan="2">
+             <widget class="QPushButton" name="startCyclsPButton">
+              <property name="text">
+               <string>Start LM Cyclic Mode</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="0" colspan="2">
+            <item row="4" column="0" colspan="2">
+             <widget class="QPushButton" name="stopCyclsPButton">
+              <property name="text">
+               <string>Stop Cyclograms</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
              <widget class="QPushButton" name="singleCyclPButton">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+               <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -370,7 +469,7 @@
               <property name="minimumSize">
                <size>
                 <width>60</width>
-                <height>0</height>
+                <height>30</height>
                </size>
               </property>
               <property name="text">
@@ -378,7 +477,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="2">
+            <item row="2" column="1">
              <widget class="QSpinBox" name="singleCyclSBox">
               <property name="minimumSize">
                <size>
@@ -391,34 +490,111 @@
               </property>
              </widget>
             </item>
-            <item row="5" column="0" colspan="3">
+            <item row="7" column="0" colspan="2">
+             <widget class="QPushButton" name="softCyclicModePButton">
+              <property name="text">
+               <string>Soft Cyclic Mode</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0">
+             <widget class="QLabel" name="softCyclogramPeriodLabel">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>SC Interval, s:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" colspan="2">
              <widget class="QPushButton" name="readCyclResPButton">
               <property name="text">
                <string>Read Cyclograma Result</string>
               </property>
              </widget>
             </item>
+            <item row="6" column="0" colspan="2">
+             <widget class="Line" name="line_5">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>5</height>
+               </size>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="1">
+             <widget class="QSpinBox" name="softCyclogramPeriodSBox">
+              <property name="minimumSize">
+               <size>
+                <width>50</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="minimum">
+               <number>150</number>
+              </property>
+              <property name="maximum">
+               <number>3600</number>
+              </property>
+              <property name="value">
+               <number>150</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="Line" name="line_2">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>5</height>
+               </size>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
-           <widget class="Line" name="line_8">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer">
+           <spacer name="verticalSpacer_2">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>0</width>
+              <width>20</width>
               <height>40</height>
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetMinimumSize</enum>
+            </property>
+           </layout>
           </item>
           <item>
            <widget class="QLabel" name="label_3">
@@ -439,6 +615,12 @@
           </item>
           <item>
            <widget class="Line" name="line_6">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>5</height>
+             </size>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -797,19 +979,6 @@
             </layout>
            </widget>
           </item>
-          <item row="4" column="1">
-           <spacer name="verticalSpacer_6">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item row="6" column="0" colspan="2">
            <widget class="Line" name="line_11">
             <property name="minimumSize">
@@ -1126,10 +1295,37 @@
             </property>
            </widget>
           </item>
+          <item row="4" column="0" colspan="2">
+           <spacer name="verticalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
          </layout>
         </item>
         <item>
          <layout class="QGridLayout" name="gridLayout_4">
+          <item row="9" column="0">
+           <widget class="QPushButton" name="writeFlTaskPButton">
+            <property name="text">
+             <string>Write Test FT</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QPushButton" name="checkFlTaskPButton">
+            <property name="text">
+             <string>Check Test FT</string>
+            </property>
+           </widget>
+          </item>
           <item row="8" column="0">
            <widget class="QPushButton" name="sendFlTaskPButton">
             <property name="text">
@@ -1137,10 +1333,16 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="0">
-           <widget class="QPushButton" name="writeFlTaskPButton">
-            <property name="text">
-             <string>Write Test FT</string>
+          <item row="1" column="0" colspan="2">
+           <widget class="Line" name="line_3">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>5</height>
+             </size>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
@@ -1157,23 +1359,16 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
-           <widget class="QPushButton" name="checkFlTaskPButton">
-            <property name="text">
-             <string>Check Test FT</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="Line" name="line_3">
+          <item row="5" column="0">
+           <widget class="QPushButton" name="DCRModePausePButton">
             <property name="minimumSize">
              <size>
-              <width>0</width>
-              <height>5</height>
+              <width>120</width>
+              <height>30</height>
              </size>
             </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+            <property name="text">
+             <string>Pause</string>
             </property>
            </widget>
           </item>
@@ -1193,32 +1388,6 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QPushButton" name="DCRModeFlightTaskPButton">
-            <property name="minimumSize">
-             <size>
-              <width>120</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>FlightTask</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QPushButton" name="DCRModePausePButton">
-            <property name="minimumSize">
-             <size>
-              <width>120</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Pause</string>
-            </property>
-           </widget>
-          </item>
           <item row="7" column="0" colspan="2">
            <widget class="QLabel" name="label_4">
             <property name="minimumSize">
@@ -1235,8 +1404,21 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QPushButton" name="DCRModeOffPButton">
+          <item row="10" column="0" colspan="2">
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="3" column="1">
+           <widget class="QPushButton" name="DCRModeFlightTaskPButton">
             <property name="minimumSize">
              <size>
               <width>120</width>
@@ -1244,7 +1426,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Off</string>
+             <string>FlightTask</string>
             </property>
            </widget>
           </item>
@@ -1270,18 +1452,18 @@
             </property>
            </widget>
           </item>
-          <item row="10" column="0" colspan="2">
-           <spacer name="verticalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
+          <item row="5" column="1">
+           <widget class="QPushButton" name="DCRModeOffPButton">
+            <property name="minimumSize">
              <size>
-              <width>20</width>
-              <height>40</height>
+              <width>120</width>
+              <height>30</height>
              </size>
             </property>
-           </spacer>
+            <property name="text">
+             <string>Off</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

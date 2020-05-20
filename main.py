@@ -11,7 +11,7 @@ import can_unit
 import pay_load
 import cyclogram_result
 
-version = "0.8.1"
+version = "0.9.1"
 
 
 class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
@@ -56,6 +56,13 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.readCyclResPButton.clicked.connect(self.read_cyclogram_result)
         self.readCyclResTimer = QtCore.QTimer()
         self.readCyclResCounter = 0
+
+        self.softCyclicModePButton.clicked.connect(self.start_soft_cyclogram)
+        self.soft_clg_mode = 0
+        self.soft_clg_num = 0
+        self.soft_cyclograms = [1, 2, 5]
+        self.softCyclTimer = QtCore.QTimer()
+        self.softCyclTimer.timeout.connect(self.soft_cyclogram_body)
         # окно с результатом циклограммы
         self.cycl_result_win = cyclogram_result.Widget()
         # работа с ДеКоР
@@ -180,18 +187,45 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
 
     def read_cyclogram_result_body(self):
         if self.readCyclResCounter < 17:
-            self.readCyclResTimer.singleShot(200, self.read_cyclogram_result_body)
+            self.readCyclResTimer.singleShot(300, self.read_cyclogram_result_body)
             self.lm.read_cyclogram_result(self.readCyclResCounter)
             self.readCyclResCounter += 1
         else:
             self.readCyclResPButton.setEnabled(True)
             self.readCyclResCounter = 0
-            self.cycl_res_log_file = self.create_log_file(prefix="Cyclogram_Result", sub_dir="Cyclogram", extension=".txt")
+            self.cycl_res_log_file = self.create_log_file(prefix="Cyclogram_Result", sub_sub_dir=False, sub_dir="Cyclogram", extension=".txt")
             self.cycl_res_log_file.write(self.lm.get_cyclogram_result_str())
             self.cycl_res_log_file.write(self.lm.get_parc_cyclogram_result())
             self.cycl_res_log_file.close()
             self.cycl_result_win.show()
             self.cycl_result_win.cyclResultTEdit.setText(self.lm.get_cyclogram_result_str() + self.lm.get_parc_cyclogram_result())
+
+    def start_soft_cyclogram(self):
+        if self.softCyclicModePButton.isChecked() is False:
+            self.softCyclTimer.stop()
+            self.soft_clg_mode = 0
+        else:
+            self.softCyclTimer.start(1000)
+        pass
+
+    def soft_cyclogram_body(self):
+        try:
+            self.softCyclTimer.setInterval(self.softCyclogramPeriodSBox.value() * 1000)
+            #
+            if self.soft_clg_mode == 0:
+                self.soft_clg_mode = 1
+            else:
+                self.read_cyclogram_result_body()
+            if self.soft_clg_num >= len(self.soft_cyclograms):
+                self.soft_clg_num = 0
+            cyclogram_num = self.soft_cyclograms[self.soft_clg_num]
+            self.soft_clg_num += 1
+            self.lm.send_cmd_reg(mode="cyclogram_start", data=[0x01, cyclogram_num])
+            print(cyclogram_num)
+        except Exception as error:
+            print("soft cycl body:", error)
+        pass
+
 
     # управление ДеКоР
     def set_dcr_mode_default(self):
@@ -282,11 +316,14 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
 
     # LOGs #
     @staticmethod
-    def create_log_file(file=None, sub_dir="Log", prefix="", extension=".csv"):
+    def create_log_file(file=None, sub_dir="Log", sub_sub_dir=True,  prefix="", extension=".csv"):
         dir_name = "Logs"
         sub_dir_name = dir_name + "\\" + time.strftime("%Y_%m_%d", time.localtime()) + " " + sub_dir
-        sub_sub_dir_name = sub_dir_name + "\\" + time.strftime("%Y_%m_%d %H-%M-%S ",
+        if sub_sub_dir:
+            sub_sub_dir_name = sub_dir_name + "\\" + time.strftime("%Y_%m_%d %H-%M-%S ",
                                                                time.localtime()) + sub_dir
+        else:
+            sub_sub_dir_name = sub_dir_name
         try:
             os.makedirs(sub_sub_dir_name)
         except (OSError, AttributeError) as error:

@@ -137,3 +137,6 @@ dmypy.json
 
 # my ignore
 /lm_debug_clien/*
+/.idea/
+/lm_debug_client/
+/для ИСС/

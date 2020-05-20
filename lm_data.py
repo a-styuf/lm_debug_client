@@ -120,32 +120,36 @@ class LMData:
                               "d_len": len(data),
                               "data": data}
             if mode in "dbg_led_test":
-                req_param_dict["offset"] = 0x80
-            elif mode in "lm_mode":
+                req_param_dict["offset"] = 0x30
+            elif mode in "synch_time":
                 req_param_dict["offset"] = 0x00
-            elif mode in "lm_pn_pwr_switch":
-                req_param_dict["offset"] = 0x01
-            elif mode in "pn_inhibit":
-                req_param_dict["offset"] = 0x02
-            elif mode in "all_mem_rd_ptr":
-                req_param_dict["offset"] = 0x0A
-            elif mode in "pn_dcr_mode":
-                req_param_dict["offset"] = 0x0E
-            elif mode in "pl11_a_outputs":
-                req_param_dict["offset"] = 0x0F
-            elif mode in "pl11_b_outputs":
-                req_param_dict["offset"] = 0x10
-            elif mode in "pl12_outputs":
-                req_param_dict["offset"] = 0x11
-            elif mode in "pl20_outputs":
-                req_param_dict["offset"] = 0x12
-            elif mode in "cyclogram_start":
-                req_param_dict["offset"] = 0x13
             elif mode in "const_mode":
-                req_param_dict["offset"] = 0x15
+                req_param_dict["offset"] = 0x04
+            elif mode in "lm_mode":
+                req_param_dict["offset"] = 0x10
+            elif mode in "lm_pn_pwr_switch":
+                req_param_dict["offset"] = 0x11
+            elif mode in "pn_inhibit":
+                req_param_dict["offset"] = 0x12
+            elif mode in "all_mem_rd_ptr":
+                req_param_dict["offset"] = 0x1A
+            elif mode in "part_mem_rd_ptr":
+                req_param_dict["offset"] = 0x1E
+            elif mode in "pn_dcr_mode":
+                req_param_dict["offset"] = 0x22
+            elif mode in "pl11_a_outputs":
+                req_param_dict["offset"] = 0x23
+            elif mode in "pl11_b_outputs":
+                req_param_dict["offset"] = 0x24
+            elif mode in "pl12_outputs":
+                req_param_dict["offset"] = 0x25
+            elif mode in "pl20_outputs":
+                req_param_dict["offset"] = 0x26
+            elif mode in "cyclogram_start":
+                req_param_dict["offset"] = 0x27
             else:
                 raise ValueError("Incorrect method parameter <mode>")
-            self._print("send com_reg<%s>" % mode)
+            self._print("send com_reg<%s>: " % mode, data)
             self.usb_can.request(**req_param_dict)
 
     def read_cmd_reg(self, mode="dbg_led_test", leng=1):
@@ -158,29 +162,33 @@ class LMData:
                               "d_len": leng,
                               "data": []}
             if mode in "dbg_led_test":
-                req_param_dict["offset"] = 0x80
-            elif mode in "lm_mode":
+                req_param_dict["offset"] = 0x30
+            elif mode in "synch_time":
                 req_param_dict["offset"] = 0x00
-            elif mode in "lm_pn_pwr_switch":
-                req_param_dict["offset"] = 0x01
-            elif mode in "pn_inhibit":
-                req_param_dict["offset"] = 0x02
-            elif mode in "all_mem_rd_ptr":
-                req_param_dict["offset"] = 0x0A
-            elif mode in "pn_dcr_mode":
-                req_param_dict["offset"] = 0x0E
-            elif mode in "pl11_a_outputs":
-                req_param_dict["offset"] = 0x0F
-            elif mode in "pl11_b_outputs":
-                req_param_dict["offset"] = 0x10
-            elif mode in "pl12_outputs":
-                req_param_dict["offset"] = 0x11
-            elif mode in "pl20_outputs":
-                req_param_dict["offset"] = 0x12
-            elif mode in "cyclogram_start":
-                req_param_dict["offset"] = 0x13
             elif mode in "const_mode":
-                req_param_dict["offset"] = 0x15
+                req_param_dict["offset"] = 0x04
+            elif mode in "lm_mode":
+                req_param_dict["offset"] = 0x10
+            elif mode in "lm_pn_pwr_switch":
+                req_param_dict["offset"] = 0x11
+            elif mode in "pn_inhibit":
+                req_param_dict["offset"] = 0x12
+            elif mode in "all_mem_rd_ptr":
+                req_param_dict["offset"] = 0x1A
+            elif mode in "part_mem_rd_ptr":
+                req_param_dict["offset"] = 0x1E
+            elif mode in "pn_dcr_mode":
+                req_param_dict["offset"] = 0x22
+            elif mode in "pl11_a_outputs":
+                req_param_dict["offset"] = 0x23
+            elif mode in "pl11_b_outputs":
+                req_param_dict["offset"] = 0x24
+            elif mode in "pl12_outputs":
+                req_param_dict["offset"] = 0x25
+            elif mode in "pl20_outputs":
+                req_param_dict["offset"] = 0x26
+            elif mode in "cyclogram_start":
+                req_param_dict["offset"] = 0x27
             else:
                 raise ValueError("Incorrect method parameter <mode>")
             self._print("read com_reg<%s>" % mode)

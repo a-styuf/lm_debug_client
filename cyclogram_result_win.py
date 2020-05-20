@@ -13,8 +13,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CyclogramResult(object):
     def setupUi(self, CyclogramResult):
         CyclogramResult.setObjectName("CyclogramResult")
-        CyclogramResult.resize(400, 300)
+        CyclogramResult.resize(1024, 761)
         self.horizontalLayout = QtWidgets.QHBoxLayout(CyclogramResult)
+        self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.cyclResultTEdit = QtWidgets.QTextEdit(CyclogramResult)
         self.cyclResultTEdit.setReadOnly(True)
