@@ -39,7 +39,7 @@ class LMData:
         # интерфейс работы с ITB - VCP-CAN
         self.usb_can = usb_can_bridge.MyUSBCANDevice(baudrate=self.baudrate,
                                                      serial_numbers=self.serial_numbers,
-                                                     debug=False,  # self.debug,
+                                                     debug=True,  # self.debug,
                                                      crc=self.crc_check,
                                                      )
         # заготовка для хранения данных прибора
@@ -423,7 +423,6 @@ class LMData:
         for data in parced_data:
             report_str += "{:<30}".format(data[0]) + "\t{:}".format(data[1]) + "\n"
         return report_str
-
 
     # pl_iss instamessage data #
     def parc_instamessage_data(self, offset, data):

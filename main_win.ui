@@ -1312,10 +1312,10 @@
         </item>
         <item>
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="9" column="0">
-           <widget class="QPushButton" name="writeFlTaskPButton">
+          <item row="8" column="0">
+           <widget class="QPushButton" name="sendFlTaskPButton">
             <property name="text">
-             <string>Write Test FT</string>
+             <string>Send Test FT</string>
             </property>
            </widget>
           </item>
@@ -1326,23 +1326,10 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="0">
-           <widget class="QPushButton" name="sendFlTaskPButton">
+          <item row="9" column="0">
+           <widget class="QPushButton" name="writeFlTaskPButton">
             <property name="text">
-             <string>Send Test FT</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="Line" name="line_3">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>5</height>
-             </size>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <string>Write Test FT</string>
             </property>
            </widget>
           </item>
@@ -1356,19 +1343,6 @@
             </property>
             <property name="text">
              <string>Default</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QPushButton" name="DCRModePausePButton">
-            <property name="minimumSize">
-             <size>
-              <width>120</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Pause</string>
             </property>
            </widget>
           </item>
@@ -1404,6 +1378,32 @@
             </property>
            </widget>
           </item>
+          <item row="5" column="0">
+           <widget class="QPushButton" name="DCRModePausePButton">
+            <property name="minimumSize">
+             <size>
+              <width>120</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Pause</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="Line" name="line_3">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>5</height>
+             </size>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
           <item row="10" column="0" colspan="2">
            <spacer name="verticalSpacer_3">
             <property name="orientation">
@@ -1416,19 +1416,6 @@
              </size>
             </property>
            </spacer>
-          </item>
-          <item row="3" column="1">
-           <widget class="QPushButton" name="DCRModeFlightTaskPButton">
-            <property name="minimumSize">
-             <size>
-              <width>120</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>FlightTask</string>
-            </property>
-           </widget>
           </item>
           <item row="0" column="0" colspan="2">
            <widget class="QLabel" name="DecorLabel">
@@ -1462,6 +1449,26 @@
             </property>
             <property name="text">
              <string>Off</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QPushButton" name="DCRModeFlightTaskPButton">
+            <property name="minimumSize">
+             <size>
+              <width>120</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>FlightTask</string>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="0" colspan="2">
+           <widget class="QPushButton" name="synchLMTimePButton">
+            <property name="text">
+             <string>Sync LM with PC Time</string>
             </property>
            </widget>
           </item>

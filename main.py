@@ -86,6 +86,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.pl11BRdPButton.clicked.connect(self.pl11b_read_word)
 
         self.pl11BSetIKUPButton.clicked.connect(self.pl11b_set_iku)
+        # синхронизация времени
+        self.synchLMTimePButton.clicked.connect(self.synch_lm_time)
         # обновление gui
         self.DataUpdateTimer = QtCore.QTimer()
         self.DataUpdateTimer.timeout.connect(self.update_ui)
@@ -226,6 +228,12 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             print("soft cycl body:", error)
         pass
 
+    # Synch LM Time with PC Time #
+    def synch_lm_time(self):
+        time_s_from_2000 = time.mktime(time.strptime("2000-01-01 00:00:00", "%Y-%m-%d %H:%M:%S"))
+        time_tmp_s = int(time.time() - time_s_from_2000)
+        self.lm.send_cmd_reg(mode="synch_time", data=[((time_tmp_s >> 0) & 0xff), ((time_tmp_s >> 8) & 0xff),
+                                                      ((time_tmp_s >> 16) & 0xff), ((time_tmp_s >> 24) & 0xff)])
 
     # управление ДеКоР
     def set_dcr_mode_default(self):
