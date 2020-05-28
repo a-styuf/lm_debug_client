@@ -50,6 +50,9 @@ class LMData:
         self.cycl_result_offset = 1152
         self.cycl_128B_part_num = 17
         self.cyclogram_result_data = [[] for i in range(self.cycl_128B_part_num)]
+        #
+        self.mem_num = 3  # 0 - all mem, 1 - iss mem, 3 - dcr mem
+        self.mem_data = [[] for i in range(self.mem_num)]
         # заготовка для хранения переменных общения с ПН1.1
         self.pl_iss_data = {"pl11_a": [],
                             "pl11_b": [],
@@ -80,9 +83,9 @@ class LMData:
             req_param_dict["offset"] = 16
         elif mode in "lm_init":
             req_param_dict["offset"] = 0
-        elif mode in "dcr_mem_clear":
-            req_param_dict["offset"] = 1
         elif mode in "iss_mem_clear":
+            req_param_dict["offset"] = 1
+        elif mode in "dcr_mem_clear":
             req_param_dict["offset"] = 2
         else:
             raise ValueError("Incorrect method parameter <mode>")
@@ -131,12 +134,12 @@ class LMData:
                 req_param_dict["offset"] = 0x11
             elif mode in "pn_inhibit":
                 req_param_dict["offset"] = 0x12
-            elif mode in "all_mem_rd_ptr":
+            elif mode in "cyclogram_start":
                 req_param_dict["offset"] = 0x1A
+            elif mode in "pn_dcr_mode":
+                req_param_dict["offset"] = 0x1C
             elif mode in "part_mem_rd_ptr":
                 req_param_dict["offset"] = 0x1E
-            elif mode in "pn_dcr_mode":
-                req_param_dict["offset"] = 0x22
             elif mode in "pl11_a_outputs":
                 req_param_dict["offset"] = 0x23
             elif mode in "pl11_b_outputs":
@@ -145,8 +148,6 @@ class LMData:
                 req_param_dict["offset"] = 0x25
             elif mode in "pl20_outputs":
                 req_param_dict["offset"] = 0x26
-            elif mode in "cyclogram_start":
-                req_param_dict["offset"] = 0x27
             else:
                 raise ValueError("Incorrect method parameter <mode>")
             self._print("send com_reg<%s>: " % mode, data)
@@ -173,12 +174,12 @@ class LMData:
                 req_param_dict["offset"] = 0x11
             elif mode in "pn_inhibit":
                 req_param_dict["offset"] = 0x12
-            elif mode in "all_mem_rd_ptr":
+            elif mode in "cyclogram_start":
                 req_param_dict["offset"] = 0x1A
+            elif mode in "pn_dcr_mode":
+                req_param_dict["offset"] = 0x1C
             elif mode in "part_mem_rd_ptr":
                 req_param_dict["offset"] = 0x1E
-            elif mode in "pn_dcr_mode":
-                req_param_dict["offset"] = 0x22
             elif mode in "pl11_a_outputs":
                 req_param_dict["offset"] = 0x23
             elif mode in "pl11_b_outputs":
@@ -187,8 +188,6 @@ class LMData:
                 req_param_dict["offset"] = 0x25
             elif mode in "pl20_outputs":
                 req_param_dict["offset"] = 0x26
-            elif mode in "cyclogram_start":
-                req_param_dict["offset"] = 0x27
             else:
                 raise ValueError("Incorrect method parameter <mode>")
             self._print("read com_reg<%s>" % mode)
@@ -304,8 +303,7 @@ class LMData:
                     pass
                 elif var_id == 7:  # переменная памяти
                     self._print("process mem <var_id = %d, offset %d>" % (var_id, offset))
-                    parced_data = norby_data.frame_parcer(data)
-                    self._print("process mem data", parced_data)
+                    self.manage_mem_data(offset, data)
                     pass
                 elif var_id == 3:  # статусы функций
                     self._print("process cmd_status <var_id = %d, offset %d>:" % (var_id, offset), data)
@@ -338,6 +336,10 @@ class LMData:
                         self.general_data[num][1].append(data_list[num])
                 # self.cut_general_data(self.graph_interval)
             #
+            except Exception as error:
+                self._print("m: manage_general_data <%s>" % error)
+            try:
+                self.cut_general_data(self.graph_interval)
             except Exception as error:
                 self._print("m: manage_general_data <%s>" % error)
         else:
@@ -423,6 +425,33 @@ class LMData:
         for data in parced_data:
             report_str += "{:<30}".format(data[0]) + "\t{:}".format(data[1]) + "\n"
         return report_str
+
+    # mem data #
+    def manage_mem_data(self, offset, data):
+        mem_num = offset // 128
+        self._print("manage_mem_data: offset: %d, data: " % offset, list_to_str(data))
+        if mem_num == 0:  # all mem
+            self.mem_data[mem_num] = copy.deepcopy(data)
+            pass
+        elif mem_num == 1:  # iss mem
+            self.mem_data[mem_num] = copy.deepcopy(data)
+            pass
+        elif mem_num == 2:  # dcr mem
+            self.mem_data[mem_num] = copy.deepcopy(data)
+            pass
+        else:
+            self._print("manage_mem_data: offset error")
+        pass
+
+    def get_mem_data(self, num):
+        try:
+            if self.mem_data[num]:
+                ret_str = list_to_str(self.mem_data[num]) + "\n"
+                self.mem_data[num] = []
+                return ret_str
+            return None
+        except IndexError:
+            return None
 
     # pl_iss instamessage data #
     def parc_instamessage_data(self, offset, data):

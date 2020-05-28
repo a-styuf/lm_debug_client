@@ -37,6 +37,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         # управление питанием МС
         self.pwrChsSetPButton.clicked.connect(self.pwr_set_channels_state)
         #
+        self.get_general_data_inh = 0  # переменая для запрета опроса на момент других опросов
         self.genDataGetPButton.clicked.connect(self.get_general_data)
         self.cycleReadGenDataPButton.clicked.connect(self.cycle_get_general_data)
         self.genDataReadTimer = QtCore.QTimer()
@@ -66,8 +67,10 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         # окно с результатом циклограммы
         self.cycl_result_win = cyclogram_result.Widget()
         # работа с ДеКоР
-        self.DCRModeDefaultPButton.clicked.connect(self.set_dcr_mode_default)
-        self.DCRModeFlightTaskPButton.clicked.connect(self.set_dcr_mode_flight_task)
+        self.singlDCRDefModePButton.clicked.connect(self.set_dcr_single_mode_default)
+        self.singlDCRFTModePButton.clicked.connect(self.set_dcr_single_mode_flight_task)
+        self.cyclicDCRDefModePButton.clicked.connect(self.set_dcr_cyclic_mode_default)
+        self.cyclicDCRFTModePButton.clicked.connect(self.set_dcr_cyclic_mode_flight_task)
         self.DCRModePausePButton.clicked.connect(self.set_dcr_mode_pause)
         self.DCRModeOffPButton.clicked.connect(self.set_dcr_mode_off)
         # работа с ПН1.1А
@@ -75,19 +78,28 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.pl11a.instamessage_signal.connect(self.pl11a_read_word_slot)
         self.pl11AWrPButton.clicked.connect(self.pl11a_write_word)
         self.pl11ARdPButton.clicked.connect(self.pl11a_read_word)
-
-        self.pl11TestTimer = QtCore.QTimer()
-
         self.pl11ASetIKUPButton.clicked.connect(self.pl11a_set_iku)
         # работа с ПН1.1Б
         self.pl11b = pay_load.PayLoad_11(self, lm=self.lm, pl_type="pl11_b")
         self.pl11b.instamessage_signal.connect(self.pl11b_read_word_slot)
         self.pl11BWrPButton.clicked.connect(self.pl11b_write_word)
         self.pl11BRdPButton.clicked.connect(self.pl11b_read_word)
-
         self.pl11BSetIKUPButton.clicked.connect(self.pl11b_set_iku)
-        # синхронизация времени
+        # общие функции
+        self.initLMPButton.clicked.connect(self.init_lm)
+        self.formatISSMemPButton.clicked.connect(self.format_iss_mem)
+        self.formatDCRMemPButton.clicked.connect(self.format_dcr_mem)
         self.synchLMTimePButton.clicked.connect(self.synch_lm_time)
+        # работа с памятью
+        self.mem_data = ""
+        self.mem_retry_cnt= 5
+        self.rdPtrAllMemPButton.clicked.connect(self.set_all_mem_rd_ptr)
+        self.rdPtrISSMemPButton.clicked.connect(self.set_iss_mem_rd_ptr)
+        self.rdPtrDCRMemPButton.clicked.connect(self.set_dcr_mem_rd_ptr)
+        self.readFullISSMemPButton.clicked.connect(self.start_full_iss_mem)
+        self.readFullISSMemTimer = QtCore.QTimer()
+        self.readFullDCRMemPButton.clicked.connect(self.start_full_dcr_mem)
+        self.readFullDCRMemTimer = QtCore.QTimer()
         # обновление gui
         self.DataUpdateTimer = QtCore.QTimer()
         self.DataUpdateTimer.timeout.connect(self.update_ui)
@@ -95,6 +107,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         # логи
         self.data_log_file = None
         self.cycl_res_log_file = None
+        self.iss_mem_log_file = None
+        self.dcr_mem_log_file = None
         self.log_str = ""
         self.recreate_log_files()
         self.logRestartPButt.clicked.connect(self.recreate_log_files)
@@ -154,7 +168,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
 
     # general data_read
     def get_general_data(self):
-        self.lm.read_tmi(mode="lm_full_tmi")
+        if self.get_general_data_inh:
+            self.lm.read_tmi(mode="lm_full_tmi")
         pass
 
     def cycle_get_general_data(self):
@@ -228,20 +243,153 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             print("soft cycl body:", error)
         pass
 
-    # Synch LM Time with PC Time #
+    # General function #
+    def init_lm(self):
+        self.lm.send_cmd(mode="lm_init")
+        pass
+
+    def format_iss_mem(self):
+        self.lm.send_cmd(mode="iss_mem_clear")
+        pass
+
+    def format_dcr_mem(self):
+        self.lm.send_cmd(mode="dcr_mem_clear")
+        pass
+
     def synch_lm_time(self):
         time_s_from_2000 = time.mktime(time.strptime("2000-01-01 00:00:00", "%Y-%m-%d %H:%M:%S"))
         time_tmp_s = int(time.time() - time_s_from_2000)
-        self.lm.send_cmd_reg(mode="synch_time", data=[((time_tmp_s >> 0) & 0xff), ((time_tmp_s >> 8) & 0xff),
-                                                      ((time_tmp_s >> 16) & 0xff), ((time_tmp_s >> 24) & 0xff)])
+        self.lm.send_cmd_reg(mode="synch_time", data=self.get_list_from_int32_val(time_tmp_s))
+
+    # работа с памятью
+    def set_all_mem_rd_ptr(self):
+        mem_num = 127
+        rd_ptr = self.rdPtrAllMemSBox.value()
+        data = [mem_num]
+        data.extend(self.get_list_from_int32_val(rd_ptr))
+        self.lm.send_cmd_reg(mode="part_mem_rd_ptr", data=data)
+        pass
+
+    def set_iss_mem_rd_ptr(self):
+        mem_num = 0
+        rd_ptr = self.rdPtrISSMemSBox.value()
+        data = [mem_num]
+        data.extend(self.get_list_from_int32_val(rd_ptr))
+        self.lm.send_cmd_reg(mode="part_mem_rd_ptr", data=data)
+        pass
+
+    def set_dcr_mem_rd_ptr(self):
+        mem_num = 1
+        rd_ptr = self.rdPtrDCRMemSBox.value()
+        data = [mem_num]
+        data.extend(self.get_list_from_int32_val(rd_ptr))
+        self.lm.send_cmd_reg(mode="part_mem_rd_ptr", data=data)
+        pass
+
+    @staticmethod
+    def get_list_from_int32_val(val):
+        return [((val >> 0) & 0xff), ((val >> 8) & 0xff), ((val >> 16) & 0xff), ((val >> 24) & 0xff)]
+
+    def start_full_iss_mem(self):
+        self.readFullISSMemPButton.setEnabled(False)
+        self.lm.read_mem(mode="iss_mem")
+        self.readFullISSMemTimer.singleShot(1000, self.read_full_iss_mem)
+        #
+        self.cycl_res_log_file = self.create_log_file(prefix="ISS mem", sub_sub_dir=False, sub_dir="ISS mem",
+                                                      extension=".txt")
+
+    def read_full_iss_mem(self):
+        state = 0
+        # блок определения состояния
+        try:
+            mem_data = self.lm.get_mem_data(1)
+            if mem_data and (mem_data in self.mem_data):
+                if self.mem_retry_cnt > 0:
+                    self.mem_retry_cnt -= 1
+                    state = 2
+                else:
+                    state = 0
+            else:
+                self.mem_retry_cnt = 5
+                state = 1
+            self.mem_data = mem_data
+            print(self.mem_data)
+            # блок разборки необходимости действий
+            if state == 1:
+                self.mem_retry_cnt = 5
+                self.lm.read_mem(mode="iss_mem")
+                self.cycl_res_log_file.write(mem_data)
+                self.readFullISSMemTimer.singleShot(300, self.read_full_iss_mem)
+            elif state == 2:
+                self.lm.read_mem(mode="iss_mem")
+                self.readFullISSMemTimer.singleShot(300, self.read_full_iss_mem)
+            elif state == 0:
+                self.mem_data = ""
+                self.mem_retry_cnt = 5
+                self.cycl_res_log_file.close()
+                self.readFullISSMemPButton.setEnabled(True)
+        except Exception as error:
+            self.readFullDCRMemPButton.setEnabled(True)
+            print(error)
+        pass
+
+    def start_full_dcr_mem(self):
+        self.lm.read_mem(mode="dcr_mem")
+        self.readFullDCRMemTimer.singleShot(300, self.read_full_dcr_mem)
+        #
+        self.cycl_res_log_file = self.create_log_file(prefix="DCR mem", sub_sub_dir=False, sub_dir="DCR mem",
+                                                      extension=".txt")
+        self.readFullDCRMemPButton.setEnabled(False)
+
+    def read_full_dcr_mem(self):
+        state = 0
+        # блок определения состояния
+        try:
+            mem_data = self.lm.get_mem_data(2)
+            if mem_data and (mem_data in self.mem_data):
+                if self.mem_retry_cnt > 0:
+                    self.mem_retry_cnt -= 1
+                    state = 2
+                else:
+                    state = 0
+            else:
+                self.mem_retry_cnt = 5
+                state = 1
+            self.mem_data = mem_data
+            # блок разборки необходимости действий
+            if state == 1:
+                self.mem_retry_cnt = 5
+                self.lm.read_mem(mode="dcr_mem")
+                self.cycl_res_log_file.write(mem_data)
+                self.readFullDCRMemTimer.singleShot(300, self.read_full_dcr_mem)
+            elif state == 2:
+                self.lm.read_mem(mode="dcr_mem")
+                self.readFullDCRMemTimer.singleShot(300, self.read_full_dcr_mem)
+            elif state == 0:
+                self.mem_data = ""
+                self.mem_retry_cnt = 5
+                self.cycl_res_log_file.close()
+                self.readFullDCRMemPButton.setEnabled(True)
+        except Exception as error:
+            self.readFullDCRMemPButton.setEnabled(True)
+            print(error)
+        pass
 
     # управление ДеКоР
-    def set_dcr_mode_default(self):
+    def set_dcr_single_mode_default(self):
         self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x01])
         pass
 
-    def set_dcr_mode_flight_task(self):
+    def set_dcr_single_mode_flight_task(self):
         self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x02])
+        pass
+
+    def set_dcr_cyclic_mode_default(self):
+        self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x11])
+        pass
+
+    def set_dcr_cyclic_mode_flight_task(self):
+        self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x12])
         pass
 
     def set_dcr_mode_pause(self):
