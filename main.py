@@ -11,7 +11,7 @@ import can_unit
 import pay_load
 import cyclogram_result
 
-version = "0.9.1"
+version = "0.12.1"
 
 
 class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
@@ -97,8 +97,10 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.rdPtrISSMemPButton.clicked.connect(self.set_iss_mem_rd_ptr)
         self.rdPtrDCRMemPButton.clicked.connect(self.set_dcr_mem_rd_ptr)
         self.readFullISSMemPButton.clicked.connect(self.start_full_iss_mem)
+        self.stopReadFullISSMemPButton.clicked.connect(self.stop_full_iss_mem)
         self.readFullISSMemTimer = QtCore.QTimer()
         self.readFullDCRMemPButton.clicked.connect(self.start_full_dcr_mem)
+        self.stopReadFullDCRMemPButton.clicked.connect(self.stop_full_dcr_mem)
         self.readFullDCRMemTimer = QtCore.QTimer()
         # обновление gui
         self.DataUpdateTimer = QtCore.QTimer()
@@ -168,7 +170,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
 
     # general data_read
     def get_general_data(self):
-        if self.get_general_data_inh:
+        if self.get_general_data_inh == 0:
             self.lm.read_tmi(mode="lm_full_tmi")
         pass
 
@@ -298,6 +300,16 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.cycl_res_log_file = self.create_log_file(prefix="ISS mem", sub_sub_dir=False, sub_dir="ISS mem",
                                                       extension=".txt")
 
+    def stop_full_iss_mem(self):
+        self.mem_data = ""
+        self.mem_retry_cnt = 5
+        try:
+            self.cycl_res_log_file.close()
+        except Exception:
+            pass
+        self.readFullISSMemPButton.setEnabled(True)
+        self.readFullISSMemTimer.stop()
+
     def read_full_iss_mem(self):
         state = 0
         # блок определения состояния
@@ -324,12 +336,9 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
                 self.lm.read_mem(mode="iss_mem")
                 self.readFullISSMemTimer.singleShot(300, self.read_full_iss_mem)
             elif state == 0:
-                self.mem_data = ""
-                self.mem_retry_cnt = 5
-                self.cycl_res_log_file.close()
-                self.readFullISSMemPButton.setEnabled(True)
+                self.stop_full_iss_mem()
         except Exception as error:
-            self.readFullDCRMemPButton.setEnabled(True)
+            self.stop_full_iss_mem()
             print(error)
         pass
 
@@ -340,6 +349,16 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.cycl_res_log_file = self.create_log_file(prefix="DCR mem", sub_sub_dir=False, sub_dir="DCR mem",
                                                       extension=".txt")
         self.readFullDCRMemPButton.setEnabled(False)
+
+    def stop_full_dcr_mem(self):
+        self.mem_data = ""
+        self.mem_retry_cnt = 5
+        try:
+            self.cycl_res_log_file.close()
+        except Exception:
+            pass
+        self.readFullDCRMemPButton.setEnabled(True)
+        self.readFullDCRMemTimer.stop()
 
     def read_full_dcr_mem(self):
         state = 0
@@ -366,12 +385,9 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
                 self.lm.read_mem(mode="dcr_mem")
                 self.readFullDCRMemTimer.singleShot(300, self.read_full_dcr_mem)
             elif state == 0:
-                self.mem_data = ""
-                self.mem_retry_cnt = 5
-                self.cycl_res_log_file.close()
-                self.readFullDCRMemPButton.setEnabled(True)
+                self.stop_full_dcr_mem()
         except Exception as error:
-            self.readFullDCRMemPButton.setEnabled(True)
+            self.stop_full_dcr_mem()
             print(error)
         pass
 

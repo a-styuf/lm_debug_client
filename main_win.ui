@@ -562,16 +562,13 @@
         </item>
         <item>
          <layout class="QGridLayout" name="gridLayout_5">
-          <property name="horizontalSpacing">
-           <number>0</number>
-          </property>
-          <property name="verticalSpacing">
+          <property name="spacing">
            <number>9</number>
           </property>
-          <item row="3" column="0" colspan="2">
-           <widget class="QPushButton" name="startCyclsPButton">
+          <item row="5" column="0" colspan="2">
+           <widget class="QPushButton" name="readCyclResPButton">
             <property name="text">
-             <string>Start LM Cyclic Mode</string>
+             <string>Read Cyclograma Result</string>
             </property>
            </widget>
           </item>
@@ -604,23 +601,17 @@
             </property>
            </widget>
           </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QPushButton" name="startCyclsPButton">
+            <property name="text">
+             <string>Start LM Cyclic Mode</string>
+            </property>
+           </widget>
+          </item>
           <item row="4" column="0" colspan="2">
            <widget class="QPushButton" name="stopCyclsPButton">
             <property name="text">
              <string>Stop Cyclograms</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QSpinBox" name="singleCyclSBox">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -631,19 +622,6 @@
             </property>
             <property name="checkable">
              <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="0">
-           <widget class="QLabel" name="softCyclogramPeriodLabel">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>SC Interval, s:</string>
             </property>
            </widget>
           </item>
@@ -666,10 +644,29 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0" colspan="2">
-           <widget class="QPushButton" name="readCyclResPButton">
+          <item row="8" column="0">
+           <widget class="QLabel" name="softCyclogramPeriodLabel">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
             <property name="text">
-             <string>Read Cyclograma Result</string>
+             <string>SC Interval, s:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="singleCyclSBox">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -685,6 +682,19 @@
              <enum>Qt::Horizontal</enum>
             </property>
            </widget>
+          </item>
+          <item row="9" column="0" colspan="2">
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item row="8" column="1">
            <widget class="QSpinBox" name="softCyclogramPeriodSBox">
@@ -727,19 +737,6 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="0" colspan="2">
-           <spacer name="verticalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item row="10" column="0" colspan="2">
            <layout class="QGridLayout" name="gridLayout_6">
             <property name="horizontalSpacing">
@@ -748,6 +745,13 @@
             <property name="verticalSpacing">
              <number>9</number>
             </property>
+            <item row="4" column="0">
+             <widget class="QPushButton" name="rdPtrDCRMemPButton">
+              <property name="text">
+               <string>DCR</string>
+              </property>
+             </widget>
+            </item>
             <item row="4" column="1">
              <widget class="QSpinBox" name="rdPtrDCRMemSBox">
               <property name="minimumSize">
@@ -764,15 +768,8 @@
               </property>
              </widget>
             </item>
-            <item row="6" column="0" colspan="2">
-             <widget class="QPushButton" name="readFullISSMemPButton">
-              <property name="text">
-               <string>Read Full ISS memory</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="0" colspan="2">
-             <widget class="Line" name="line_13">
+            <item row="1" column="0" colspan="2">
+             <widget class="Line" name="line_12">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -806,8 +803,8 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="Line" name="line_12">
+            <item row="6" column="0" colspan="2">
+             <widget class="Line" name="line_13">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -819,24 +816,19 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="0">
-             <widget class="QPushButton" name="rdPtrDCRMemPButton">
-              <property name="text">
-               <string>DCR</string>
+            <item row="3" column="1">
+             <widget class="QSpinBox" name="rdPtrISSMemSBox">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>30</height>
+               </size>
               </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QPushButton" name="rdPtrISSMemPButton">
-              <property name="text">
-               <string>ISS</string>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QPushButton" name="rdPtrAllMemPButton">
-              <property name="text">
-               <string>All</string>
+              <property name="maximum">
+               <number>16379</number>
               </property>
              </widget>
             </item>
@@ -856,19 +848,17 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
-             <widget class="QSpinBox" name="rdPtrISSMemSBox">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>30</height>
-               </size>
+            <item row="2" column="0">
+             <widget class="QPushButton" name="rdPtrAllMemPButton">
+              <property name="text">
+               <string>All</string>
               </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-              <property name="maximum">
-               <number>16379</number>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QPushButton" name="rdPtrISSMemPButton">
+              <property name="text">
+               <string>ISS</string>
               </property>
              </widget>
             </item>
@@ -894,10 +884,35 @@
               </property>
              </widget>
             </item>
-            <item row="7" column="0" colspan="2">
+           </layout>
+          </item>
+          <item row="11" column="0" colspan="2">
+           <layout class="QGridLayout" name="gridLayout_7">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="readFullISSMemPButton">
+              <property name="text">
+               <string>Read Full ISS memory</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="stopReadFullISSMemPButton">
+              <property name="text">
+               <string>Stop</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
              <widget class="QPushButton" name="readFullDCRMemPButton">
               <property name="text">
                <string>Read Full DCR memory</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QPushButton" name="stopReadFullDCRMemPButton">
+              <property name="text">
+               <string>Stop</string>
               </property>
              </widget>
             </item>
