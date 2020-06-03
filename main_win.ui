@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1137</width>
+    <width>1139</width>
     <height>890</height>
    </rect>
   </property>
@@ -445,6 +445,13 @@
             </property>
             <property name="text">
              <string>Sync LM with PC Time</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="softResetPButton">
+            <property name="text">
+             <string>LM Soft Reset</string>
             </property>
            </widget>
           </item>

@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1137, 890)
+        MainWindow.resize(1139, 890)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -208,6 +208,9 @@ class Ui_MainWindow(object):
         self.synchLMTimePButton.setMinimumSize(QtCore.QSize(0, 30))
         self.synchLMTimePButton.setObjectName("synchLMTimePButton")
         self.verticalLayout.addWidget(self.synchLMTimePButton)
+        self.softResetPButton = QtWidgets.QPushButton(self.mainTab)
+        self.softResetPButton.setObjectName("softResetPButton")
+        self.verticalLayout.addWidget(self.softResetPButton)
         self.constModeLabel = QtWidgets.QLabel(self.mainTab)
         self.constModeLabel.setMinimumSize(QtCore.QSize(0, 25))
         font = QtGui.QFont()
@@ -777,6 +780,7 @@ class Ui_MainWindow(object):
         self.formatISSMemPButton.setText(_translate("MainWindow", "Clear ISS memory"))
         self.formatDCRMemPButton.setText(_translate("MainWindow", "Clear DCR memory"))
         self.synchLMTimePButton.setText(_translate("MainWindow", "Sync LM with PC Time"))
+        self.softResetPButton.setText(_translate("MainWindow", "LM Soft Reset"))
         self.constModeLabel.setText(_translate("MainWindow", "Constant Mode"))
         self.constModeOnPButton.setText(_translate("MainWindow", "On"))
         self.constModeOffPButton.setText(_translate("MainWindow", "Off"))

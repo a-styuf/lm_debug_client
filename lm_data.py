@@ -47,7 +47,7 @@ class LMData:
         self.graph_interval = 3600
         # заготовка для хранения и отображения параметров работы прибора
         # заготовка для хранения результата циклограммы
-        self.cycl_result_offset = 1152
+        self.cycl_result_offset = 1280
         self.cycl_128B_part_num = 17
         self.cyclogram_result_data = [[] for i in range(self.cycl_128B_part_num)]
         #
@@ -148,6 +148,8 @@ class LMData:
                 req_param_dict["offset"] = 0x25
             elif mode in "pl20_outputs":
                 req_param_dict["offset"] = 0x26
+            elif mode in "lm_soft_reset":
+                req_param_dict["offset"] = 0x27
             else:
                 raise ValueError("Incorrect method parameter <mode>")
             self._print("send com_reg<%s>: " % mode, data)
@@ -188,6 +190,8 @@ class LMData:
                 req_param_dict["offset"] = 0x25
             elif mode in "pl20_outputs":
                 req_param_dict["offset"] = 0x26
+            elif mode in "lm_soft_reset":
+                req_param_dict["offset"] = 0x27
             else:
                 raise ValueError("Incorrect method parameter <mode>")
             self._print("read com_reg<%s>" % mode)
@@ -206,6 +210,8 @@ class LMData:
         elif mode in "lm_tmi":
             req_param_dict["offset"] = 128
         elif mode in "lm_full_tmi":
+            req_param_dict["offset"] = 256
+        elif mode in "lm_load_param":
             req_param_dict["offset"] = 256
         else:
             raise ValueError("Incorrect method parameter <mode>")
@@ -298,7 +304,7 @@ class LMData:
                     parced_data = norby_data.frame_parcer(data)
                     if offset == 256:
                         self.manage_general_data(parced_data)
-                    elif 1152 <= offset < 3328:
+                    elif 1280 <= offset < 3456:
                         self.manaage_cyclogram_result_data(offset, data)
                     pass
                 elif var_id == 7:  # переменная памяти

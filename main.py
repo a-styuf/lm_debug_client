@@ -90,6 +90,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.formatISSMemPButton.clicked.connect(self.format_iss_mem)
         self.formatDCRMemPButton.clicked.connect(self.format_dcr_mem)
         self.synchLMTimePButton.clicked.connect(self.synch_lm_time)
+        self.softResetPButton.clicked.connect(self.soft_reset)
         # работа с памятью
         self.mem_data = ""
         self.mem_retry_cnt= 5
@@ -262,6 +263,10 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         time_s_from_2000 = time.mktime(time.strptime("2000-01-01 00:00:00", "%Y-%m-%d %H:%M:%S"))
         time_tmp_s = int(time.time() - time_s_from_2000)
         self.lm.send_cmd_reg(mode="synch_time", data=self.get_list_from_int32_val(time_tmp_s))
+
+    def soft_reset(self):
+        self.lm.send_cmd_reg(mode="lm_soft_reset", data=[0xA5])
+        pass
 
     # работа с памятью
     def set_all_mem_rd_ptr(self):
