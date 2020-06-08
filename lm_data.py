@@ -394,34 +394,23 @@ class LMData:
         bytes_num = 0
         for body in cycl_result[1:]:
             try:
-                if body[0] == 0xF10F:
-                    for u16_var in body[4:63]:
-                        report_str += "%04X " % u16_var
-                        bytes_num += 2
-                        if (bytes_num % 64) == 0:
-                            report_str += "\n"
+                if body[0] == 0xF1 and body[1] == 0x0F:
+                    report_str += list_to_str(body[8:126]) + "\n"
             except IndexError:
                 pass
         report_str += "\n"
         # вычленение сырах данных
         report_str += "\nCyclogram result PL data (reverse byte order in u32-words, special for PL1.1):\n\n"
         bytes_num = 0
-        word_to_print = ["", "", "", ""]
         try:
             for body in cycl_result[1:]:
-                if body[0] == 0xF10F:
-                    for u16_var in body[4:63]:
-                        bytes_num += 2
-                        if (bytes_num % 4) == 0:
-                            word_to_print[0] = "%02X" % ((u16_var >> 0) & 0xFF)
-                            word_to_print[1] = "%02X " % ((u16_var >> 8) & 0xFF)
-                            report_str += "".join(word_to_print)
-                            word_to_print = ["", "", "", ""]
-                        else:
-                            word_to_print[2] = "%02X" % ((u16_var >> 0) & 0xFF)
-                            word_to_print[3] = "%02X  " % ((u16_var >> 8) & 0xFF)
-                        if (bytes_num % 64) == 0:
-                            report_str += "\n"
+                if body[0] == 0xF1 and body[1] == 0x0F:
+                    for j in range(len(body[8:126])//4):
+                        word_to_print = "%02X%02X %02X%02X " % (body[8 + 4 * j + 3],
+                                                                body[8 + 4 * j + 2],
+                                                                body[8 + 4 * j + 1],
+                                                                body[8 + 4 * j + 0])
+                        report_str += word_to_print
         except IndexError:
             pass
         report_str += "\n"
@@ -507,7 +496,11 @@ def value_from_bound(val, val_min, val_max):
 
 
 def list_to_str(input_list):
-    return_str = " ".join(["%04X " % var for var in input_list])
+    return_str = ""
+    for i in range(len(input_list)):
+        return_str += "%02X" % input_list[i]
+        if i%2 == 1:
+            return_str += " "
     return return_str
 
 
