@@ -8,7 +8,7 @@ import time
 import lm_data
 
 
-class PayLoad_11(QtCore.QObject):
+class PayLoad(QtCore.QObject):
     instamessage_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, parent, lm=None, pl_type="pl11_a"):
@@ -29,7 +29,7 @@ class PayLoad_11(QtCore.QObject):
         self.readed_data = None
         pass
 
-    def set_out(self, rst_fpga=True, rst_leon=True):
+    def set_out(self, rst_fpga=True, rst_leon=True, n_reset=True, spi_sel=True):
         rst_fpga_int = 1 if rst_fpga else 0
         rst_leon_int = 1 if rst_leon else 0
         output_state = ((rst_leon_int & 0x01) << 1) | ((rst_fpga_int & 0x01) << 0)
@@ -37,6 +37,11 @@ class PayLoad_11(QtCore.QObject):
             self.lm.send_cmd_reg(mode="pl11_a_outputs", data=[output_state])
         elif self.pl_type is "pl11_b":
             self.lm.send_cmd_reg(mode="pl11_b_outputs", data=[output_state])
+        elif self.pl_type is "pl12":
+            n_reset_int = 1 if n_reset else 0
+            spi_sel_int = 1 if spi_sel else 0
+            output_state = ((n_reset_int & 0x01) << 1) | ((spi_sel_int & 0x01) << 0)
+            self.lm.send_cmd_reg(mode="pl12_outputs", data=[output_state])
 
     def write_data(self, u32_addr=None, u32_word=None):
         ctrl_byte = 0xC0

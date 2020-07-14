@@ -87,6 +87,10 @@ class LMData:
             req_param_dict["offset"] = 1
         elif mode in "dcr_mem_clear":
             req_param_dict["offset"] = 2
+        elif mode in "dcr_ft_1_write":
+            req_param_dict["offset"] = 3
+        elif mode in "dcr_ft_2_write":
+            req_param_dict["offset"] = 4
         else:
             raise ValueError("Incorrect method parameter <mode>")
         self._print("send com<%s> <%s>" % (mode, action))
@@ -292,6 +296,23 @@ class LMData:
         self._print("read instamessage <%s>" % pl_type)
         self.usb_can.request(**req_param_dict)
 
+    def write_dcr_fl_task_step(self, ft_num=1, ft_step=None, data=None):
+        ft_offset = 128 if ft_num == 1 else 128+2048
+        if ft_step < 128:
+            ft_offset += ft_step*16
+        else:
+            raise ValueError("Wrong flight task step num")
+        req_param_dict = {"can_num": 0,
+                          "dev_id": self.address,
+                          "mode": "write",
+                          "var_id": 8,
+                          "offset": ft_offset,
+                          "d_len": 16,
+                          "data": data}
+        self._print("write dcr flight_task-<%d> step-<%d>:" % (ft_num, ft_step) + list_to_str(data))
+        self.usb_can.request(**req_param_dict)
+        pass
+
     def parc_data(self):
         while True:
             time.sleep(0.01)
@@ -299,7 +320,7 @@ class LMData:
             res1, rtr, res2, offset, var_id, dev_id = self.usb_can.process_id_var(id_var_row)
             with self.data_lock:
                 if var_id == 5:  # переменная телеметрии
-                    report_data = " ".join([("%04X" % var) for var in data])
+                    report_data = " ".join([("%02X" % var) for var in data])
                     self._print("process tmi <var_id = %d, offset %d>" % (var_id, offset), report_data)
                     parced_data = norby_data.frame_parcer(data)
                     if offset == 256:
@@ -497,11 +518,13 @@ def value_from_bound(val, val_min, val_max):
 
 def list_to_str(input_list):
     return_str = ""
-    for i in range(len(input_list)):
-        return_str += "%02X" % input_list[i]
-        if i%2 == 1:
-            return_str += " "
-    return return_str
+    if input_list:
+        for i in range(len(input_list)):
+            return_str += "%02X" % input_list[i]
+            if i%2 == 1:
+                return_str += " "
+        return return_str
+    return " "
 
 
 if __name__ == "__main__":

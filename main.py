@@ -68,23 +68,39 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.cycl_result_win = cyclogram_result.Widget()
         # работа с ДеКоР
         self.singlDCRDefModePButton.clicked.connect(self.set_dcr_single_mode_default)
-        self.singlDCRFTModePButton.clicked.connect(self.set_dcr_single_mode_flight_task)
         self.cyclicDCRDefModePButton.clicked.connect(self.set_dcr_cyclic_mode_default)
-        self.cyclicDCRFTModePButton.clicked.connect(self.set_dcr_cyclic_mode_flight_task)
+        self.singlDCRFT1ModePButton.clicked.connect(self.set_dcr_single_mode_flight_task_1)
+        self.cyclicDCRFT1ModePButton.clicked.connect(self.set_dcr_cyclic_mode_flight_task_1)
+        self.singlDCRFT2ModePButton.clicked.connect(self.set_dcr_single_mode_flight_task_2)
+        self.cyclicDCRFT2ModePButton.clicked.connect(self.set_dcr_cyclic_mode_flight_task_2)
+        self.sendFlTaskPButton.clicked.connect(self.send_fl_task_start)
         self.DCRModePausePButton.clicked.connect(self.set_dcr_mode_pause)
         self.DCRModeOffPButton.clicked.connect(self.set_dcr_mode_off)
+        self.DCRFlightTaskTimer = QtCore.QTimer()
+        self.DCRFlightTaskCounter = 0
+        self.fl_task_1 = []
+        self.fl_task_2 = []
+
+        self.writeFlTaskPButton.clicked.connect(self.cmd_write_fl_task)
+
         # работа с ПН1.1А
-        self.pl11a = pay_load.PayLoad_11(self, lm=self.lm, pl_type="pl11_a")
+        self.pl11a = pay_load.PayLoad(self, lm=self.lm, pl_type="pl11_a")
         self.pl11a.instamessage_signal.connect(self.pl11a_read_word_slot)
         self.pl11AWrPButton.clicked.connect(self.pl11a_write_word)
         self.pl11ARdPButton.clicked.connect(self.pl11a_read_word)
         self.pl11ASetIKUPButton.clicked.connect(self.pl11a_set_iku)
         # работа с ПН1.1Б
-        self.pl11b = pay_load.PayLoad_11(self, lm=self.lm, pl_type="pl11_b")
+        self.pl11b = pay_load.PayLoad(self, lm=self.lm, pl_type="pl11_b")
         self.pl11b.instamessage_signal.connect(self.pl11b_read_word_slot)
         self.pl11BWrPButton.clicked.connect(self.pl11b_write_word)
         self.pl11BRdPButton.clicked.connect(self.pl11b_read_word)
         self.pl11BSetIKUPButton.clicked.connect(self.pl11b_set_iku)
+        # работа с ПН1.2
+        self.pl12 = pay_load.PayLoad(self, lm=self.lm, pl_type="pl12")
+        self.pl12.instamessage_signal.connect(self.pl12_read_word_slot)
+        self.pl12WrPButton_2.clicked.connect(self.pl12_write_word)
+        self.pl12RdPButton_2.clicked.connect(self.pl12_read_word)
+        self.pl12SetIKUPButton_2.clicked.connect(self.pl12_set_iku)
         # общие функции
         self.initLMPButton.clicked.connect(self.init_lm)
         self.formatISSMemPButton.clicked.connect(self.format_iss_mem)
@@ -401,25 +417,96 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x01])
         pass
 
-    def set_dcr_single_mode_flight_task(self):
+    def set_dcr_single_mode_flight_task_1(self):
         self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x02])
+        pass
+
+    def set_dcr_single_mode_flight_task_2(self):
+        self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x03])
         pass
 
     def set_dcr_cyclic_mode_default(self):
         self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x11])
         pass
 
-    def set_dcr_cyclic_mode_flight_task(self):
+    def set_dcr_cyclic_mode_flight_task_1(self):
         self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x12])
         pass
 
-    def set_dcr_mode_pause(self):
-        self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x03])
+    def set_dcr_cyclic_mode_flight_task_2(self):
+        self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x13])
         pass
 
     def set_dcr_mode_off(self):
         self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x00])
         pass
+
+    def set_dcr_mode_pause(self):
+        self.lm.send_cmd_reg(mode="pn_dcr_mode", data=[0x04])
+        pass
+
+    def send_fl_task_start(self):
+        self.sendFlTaskPButton.setEnabled(False)
+        #
+        self.DCRFlightTaskCounter += 0
+        self.fl_task_1 = []
+        self.fl_task_2 = []
+        # очистка полетного задания 1
+        for i in range(128):
+            self.fl_task_1.append(self.create_flight_task_list_step(type=0, cmd=0x00, pause=0, repeat=0, data=None))
+        # дозапись полетного задания 1
+        self.fl_task_1[0] = self.create_flight_task_list_step(type=1, cmd=0x01, pause=3000, repeat=0, data=[0x03])  # включить питание: МК и ИЗМ
+        self.fl_task_1[1] = self.create_flight_task_list_step(type=2, cmd=0x01, pause=1000, repeat=0, data=[0x72, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])  # отправка команды
+        self.fl_task_1[2] = self.create_flight_task_list_step(type=3, cmd=0x00, pause=1000, repeat=0, data=None)  # синхронизация времени
+        self.fl_task_1[3] = self.create_flight_task_list_step(type=2, cmd=0x01, pause=1000, repeat=0, data=[0x72, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])  # отправка команды
+        self.fl_task_1[4] = self.create_flight_task_list_step(type=2, cmd=0x01, pause=1000, repeat=0, data=[0x62, 0xD2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])  # отправка команды
+        self.fl_task_1[5] = self.create_flight_task_list_step(type=2, cmd=0x01, pause=1000, repeat=0, data=[0x72, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])  # отправка команды
+        self.fl_task_1[6] = self.create_flight_task_list_step(type=8, cmd=0x01, pause=60000, repeat=60, data=None)  # пустая команда
+        self.fl_task_1[7] = self.create_flight_task_list_step(type=2, cmd=0x01, pause=1000, repeat=0, data=[0x72, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])  # отправка команды
+        self.fl_task_1[8] = self.create_flight_task_list_step(type=2, cmd=0x01, pause=100, repeat=1000, data=[0x72, 0xC3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])  # отправка команды
+        self.fl_task_1[9] = self.create_flight_task_list_step(type=1, cmd=0x00, pause=0, repeat=0, data=[0x03]) # выключить питание:  МК и ИЗМ
+        #
+        for i in range(128):
+            self.fl_task_2.append(
+                self.create_flight_task_list_step(type=8, cmd=0x00, pause=1 % 32, repeat=i % 16, data=None))
+        self.DCRFlightTaskTimer.singleShot(300, self.send_fl_task_body)
+        pass
+
+    def send_fl_task_body(self):
+        if 0 <= self.DCRFlightTaskCounter < 1*128:
+            self.lm.write_dcr_fl_task_step(ft_num=1, ft_step=self.DCRFlightTaskCounter % 128,
+                                           data=self.fl_task_1[self.DCRFlightTaskCounter % 128])
+        elif 1*128 <= self.DCRFlightTaskCounter < 2*128:
+            self.lm.write_dcr_fl_task_step(ft_num=2, ft_step=self.DCRFlightTaskCounter % 128,
+                                           data=self.fl_task_2[self.DCRFlightTaskCounter % 128])
+        else:
+            self.sendFlTaskPButton.setEnabled(True)
+            return
+        self.DCRFlightTaskCounter += 1
+        self.DCRFlightTaskTimer.singleShot(150, self.send_fl_task_body)
+
+    def cmd_write_fl_task(self):
+        self.lm.send_cmd(mode="dcr_ft_1_write")
+        time.sleep(0.100)
+        self.lm.send_cmd(mode="dcr_ft_2_write")
+
+        pass
+
+    @staticmethod
+    def create_flight_task_list_step(type=8, cmd=0x00, pause=1000, repeat=0, data=None):
+        step_data_list=[]
+        step_data_list.extend([type & 0xFF])
+        step_data_list.extend([cmd & 0xFF])
+        step_data_list.extend([(pause >> 24) & 0xFF, (pause >> 16) & 0xFF, (pause >> 8) & 0xFF, (pause >> 0) & 0xFF])
+        step_data_list.extend([(repeat >> 8) & 0xFF, (repeat >> 0) & 0xFF])
+        try:
+            data = data[:16]
+        except (IndexError, TypeError):
+            data = []
+        while len(data) < 16:
+            data.append(0x00)
+        step_data_list.extend(data)
+        return step_data_list
 
     # управление ПН1.1
     def pl11a_set_iku(self):
@@ -427,25 +514,11 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
                            rst_leon=self.pl11AResetMCUChBox.isChecked())
         pass
 
-    def pl11b_set_iku(self):
-        self.pl11b.set_out(rst_fpga=self.pl11BResetFPGAChBox.isChecked(),
-                           rst_leon=self.pl11BResetMCUChBox.isChecked())
-        pass
-
     def pl11a_write_word(self):
         try:
             u32_addr = self.get_u32_from_ledit(self.pl11AWrAddrLEdit)
             u32_word = self.get_u32_from_ledit(self.pl11AWrDataLEdit)
             self.pl11a.write_data(u32_addr=u32_addr, u32_word=u32_word)
-        except Exception as error:
-            print("main->write_word->", error)
-        pass
-
-    def pl11b_write_word(self):
-        try:
-            u32_addr = self.get_u32_from_ledit(self.pl11BWrAddrLEdit)
-            u32_word = self.get_u32_from_ledit(self.pl11BWrDataLEdit)
-            self.pl11b.write_data(u32_addr=u32_addr, u32_word=u32_word)
         except Exception as error:
             print("main->write_word->", error)
         pass
@@ -459,6 +532,24 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             print("main->read_word->", error)
         pass
 
+    def pl11a_read_word_slot(self, word):
+        self.set_u32_to_ledit(self.pl11ARdDataLEdit, word)
+        self.pl11ARdPButton.setEnabled(True)
+
+    def pl11b_set_iku(self):
+        self.pl11b.set_out(rst_fpga=self.pl11BResetFPGAChBox.isChecked(),
+                           rst_leon=self.pl11BResetMCUChBox.isChecked())
+        pass
+
+    def pl11b_write_word(self):
+        try:
+            u32_addr = self.get_u32_from_ledit(self.pl11BWrAddrLEdit)
+            u32_word = self.get_u32_from_ledit(self.pl11BWrDataLEdit)
+            self.pl11b.write_data(u32_addr=u32_addr, u32_word=u32_word)
+        except Exception as error:
+            print("main->write_word->", error)
+        pass
+
     def pl11b_read_word(self):
         try:
             u32_addr = self.get_u32_from_ledit(self.pl11BRdAddrLEdit)
@@ -468,13 +559,36 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             print("main->read_word->", error)
         pass
 
-    def pl11a_read_word_slot(self, word):
-        self.set_u32_to_ledit(self.pl11ARdDataLEdit, word)
-        self.pl11ARdPButton.setEnabled(True)
-
     def pl11b_read_word_slot(self, word):
         self.set_u32_to_ledit(self.pl11BRdDataLEdit, word)
         self.pl11BRdPButton.setEnabled(True)
+
+    def pl12_set_iku(self):
+        self.pl12.set_out(n_reset=self.pl12nResetChBox.isChecked(),
+                          spi_sel=self.pl12SPISelChBox.isChecked())
+        pass
+
+    def pl12_write_word(self):
+        try:
+            u32_addr = self.get_u32_from_ledit(self.pl12WrAddrLEdit_2)
+            u32_word = self.get_u32_from_ledit(self.pl12WrDataLEdit_2)
+            self.pl12.write_data(u32_addr=u32_addr, u32_word=u32_word)
+        except Exception as error:
+            print("main->write_word->", error)
+        pass
+
+    def pl12_read_word(self):
+        try:
+            u32_addr = self.get_u32_from_ledit(self.pl12RdAddrLEdit_2)
+            self.pl12.read_req_data(u32_addr=u32_addr)
+            self.pl12RdPButton_2.setEnabled(False)
+        except Exception as error:
+            print("main->read_word->", error)
+        pass
+
+    def pl12_read_word_slot(self, word):
+        self.set_u32_to_ledit(self.pl12RdDataLEdit_2, word)
+        self.pl12RdPButton_2.setEnabled(True)
 
     def get_u32_from_ledit(self, line_edit):
         str = line_edit.text()
