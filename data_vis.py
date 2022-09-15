@@ -196,23 +196,23 @@ class Unit(QtWidgets.QWidget, data_vis_unit.Ui_dataVisUnitOName):
         :param color: short name for RGB-color code
         :return: string with colorcode in format "#XXXXXX"
         """
-        if color is None:
+        if color == None:
             raise ValueError("Parameter is absent")
-        elif color is "r" or color is "red": return "#FF000D"
-        elif color is "or" or color is "OrangeRed": return "#FF4500"
-        elif color is "b" or color is "blue": return "#0000FF"
-        elif color is "sb" or color is "SteelBlue": return "#4682B8"
-        elif color is "g" or color is "green": return "#63B365"
-        elif color is "c" or color is "cyan": return "#00FFFF"
-        elif color is "m" or color is "magenta": return "#C20078"
-        elif color is "y" or color is "yellow": return "#FFFF14"
-        elif color is "k" or color is "black": return "#000000"
-        elif color is "dn" or color is "DarkNavy": return "#000435"
-        elif color is "chcl" or color is "charcoal": return "#343837"
-        elif color is "wh" or color is "white": return "#FFFFFF"
-        elif color is "gr" or color is "gray": return "#808080"
-        elif color is "dgr" or color is "DarkGray": return "#2C3539"
-        elif color is "sgr" or color is "StateGray": return "#708090"
+        elif color == "r" or color == "red": return "#FF000D"
+        elif color == "or" or color == "OrangeRed": return "#FF4500"
+        elif color == "b" or color == "blue": return "#0000FF"
+        elif color == "sb" or color == "SteelBlue": return "#4682B8"
+        elif color == "g" or color == "green": return "#63B365"
+        elif color == "c" or color == "cyan": return "#00FFFF"
+        elif color == "m" or color == "magenta": return "#C20078"
+        elif color == "y" or color == "yellow": return "#FFFF14"
+        elif color == "k" or color == "black": return "#000000"
+        elif color == "dn" or color == "DarkNavy": return "#000435"
+        elif color == "chcl" or color == "charcoal": return "#343837"
+        elif color == "wh" or color == "white": return "#FFFFFF"
+        elif color == "gr" or color == "gray": return "#808080"
+        elif color == "dgr" or color == "DarkGray": return "#2C3539"
+        elif color == "sgr" or color == "StateGray": return "#708090"
         else:
             raise ValueError("Unknown Parameter")
 
@@ -375,6 +375,8 @@ class Units(QtWidgets.QVBoxLayout):
 
 
 class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
+    restart_graph_signal = QtCore.pyqtSignal()
+
     def __init__(self):
         # unit-GUI initialization
         super(Widget, self).__init__()
@@ -406,6 +408,7 @@ class Widget(QtWidgets.QWidget, data_vis_widget.Ui_dataVisWidgetOName):
         # работа с кнопками
         self.addUnitPButton.clicked.connect(self.add_unit)
         self.removeUnitPButton.clicked.connect(self.delete_unit)
+        self.restartPButton.clicked.connect(self.restart_graph_signal.emit)
         # обновление gui
         self.redraw_period = 500
         self.DataUpdateTimer = QtCore.QTimer()

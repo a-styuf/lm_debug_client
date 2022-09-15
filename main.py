@@ -11,7 +11,7 @@ import can_unit
 import pay_load
 import cyclogram_result
 
-version = "0.12.1"
+version = "0.14.3"
 
 
 class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
@@ -24,7 +24,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.setWindowIcon(QtGui.QIcon('icon.png'))
         self.setWindowTitle("Norby - Linking Module. Version {:s}".format(version))
         # класс для управления устройством
-        self.lm = lm_data.LMData(serial_numbers=["0000ACF0", "205135995748", "205B359A", "2056359A", "2059359A"], debug=True, address=6)
+        self.lm = lm_data.LMData(serial_numbers=["0000ACF0", "205135995748", "205B359A", "2056359A", "2059359A", "365938753038", "365638633038", "365638633038"], debug=True, address=6)
         self.connectionPButt.clicked.connect(self.lm.usb_can.reconnect)
         # таб с кан-терминалом
         self.can_usb_client_widget = can_unit.ClientGUIWindow(self, interface=self.lm.usb_can)
@@ -33,6 +33,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.canTerminalVBLayout.addWidget(self.can_usb_client_widget)
         # второе окно с графиками
         self.graph_window = data_vis.Widget()
+        self.graph_window.restart_graph_signal.connect(self.restart_graph)
         self.openGraphPButton.clicked.connect(self.open_graph_window)
         # управление питанием МС
         self.pwrChsSetPButton.clicked.connect(self.pwr_set_channels_state)
@@ -101,6 +102,11 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.pl12WrPButton_2.clicked.connect(self.pl12_write_word)
         self.pl12RdPButton_2.clicked.connect(self.pl12_read_word)
         self.pl12SetIKUPButton_2.clicked.connect(self.pl12_set_iku)
+        # работа с ПН1.2
+        self.pl20 = pay_load.PayLoad(self, lm=self.lm, pl_type="pl20")
+        self.pl20.instamessage_signal.connect(self.pl20_read_word_slot)
+        self.pl20RdPButton.clicked.connect(self.pl20_read_word)
+        self.pl20SetIKUPButton.clicked.connect(self.pl20_set_iku)
         # общие функции
         self.initLMPButton.clicked.connect(self.init_lm)
         self.formatISSMemPButton.clicked.connect(self.format_iss_mem)
@@ -125,12 +131,14 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.DataUpdateTimer.start(1000)
         # логи
         self.data_log_file = None
+        self.data_log_file_title = None
         self.cycl_res_log_file = None
         self.iss_mem_log_file = None
         self.dcr_mem_log_file = None
         self.log_str = ""
-        self.recreate_log_files()
+
         self.logRestartPButt.clicked.connect(self.recreate_log_files)
+        self.recreate_log_files()
 
         # UI #
     def update_ui(self):
@@ -138,12 +146,18 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             # отрисовка графика
             pass
             # логи
-            log_str_tmp = self.lm.get_log_file_data()
-            if self.log_str == log_str_tmp:
-                pass
-            else:
-                self.log_str = log_str_tmp
-                self.data_log_file.write(self.log_str + "\n")
+            if self.lm.get_log_file_title() is not None and self.data_log_file_title is None:
+                self.data_log_file_title = self.lm.get_log_file_title()
+                self.data_log_file.write(self.data_log_file_title)
+            elif self.data_log_file_title:
+                log_str_tmp = self.lm.get_log_file_data()
+                if len(log_str_tmp) < 10:
+                    pass
+                elif self.log_str == log_str_tmp:
+                    pass
+                else:
+                    self.log_str = log_str_tmp
+                    self.data_log_file.write(self.log_str.replace(".", ","))
             # отображение состояния подключения
             self.statusLEdit.setText(self.lm.usb_can.state_string[self.lm.usb_can.state])
             # передача данных в графики
@@ -198,6 +212,10 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             self.genDataReadTimer.start(1000)
         pass
 
+    def restart_graph(self):
+        self.lm.reset_general_data()
+        pass
+
     # управление циклограммами
     def single_cyclogram(self):
         try:
@@ -222,7 +240,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         pass
 
     def read_cyclogram_result_body(self):
-        if self.readCyclResCounter < 17:
+        if self.readCyclResCounter < 33:
             self.readCyclResTimer.singleShot(300, self.read_cyclogram_result_body)
             self.lm.read_cyclogram_result(self.readCyclResCounter)
             self.readCyclResCounter += 1
@@ -323,7 +341,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
 
     def stop_full_iss_mem(self):
         self.mem_data = ""
-        self.mem_retry_cnt = 5
+        self.mem_retry_cnt = 10
         try:
             self.cycl_res_log_file.close()
         except Exception:
@@ -343,19 +361,19 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
                 else:
                     state = 0
             else:
-                self.mem_retry_cnt = 5
+                self.mem_retry_cnt = 10
                 state = 1
             self.mem_data = mem_data
             print(self.mem_data)
             # блок разборки необходимости действий
             if state == 1:
-                self.mem_retry_cnt = 5
+                self.mem_retry_cnt = 10
                 self.lm.read_mem(mode="iss_mem")
                 self.cycl_res_log_file.write(mem_data)
-                self.readFullISSMemTimer.singleShot(300, self.read_full_iss_mem)
+                self.readFullISSMemTimer.singleShot(350, self.read_full_iss_mem)
             elif state == 2:
                 self.lm.read_mem(mode="iss_mem")
-                self.readFullISSMemTimer.singleShot(300, self.read_full_iss_mem)
+                self.readFullISSMemTimer.singleShot(350, self.read_full_iss_mem)
             elif state == 0:
                 self.stop_full_iss_mem()
         except Exception as error:
@@ -373,7 +391,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
 
     def stop_full_dcr_mem(self):
         self.mem_data = ""
-        self.mem_retry_cnt = 5
+        self.mem_retry_cnt = 20
         try:
             self.cycl_res_log_file.close()
         except Exception:
@@ -393,12 +411,12 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
                 else:
                     state = 0
             else:
-                self.mem_retry_cnt = 5
+                self.mem_retry_cnt = 20
                 state = 1
             self.mem_data = mem_data
             # блок разборки необходимости действий
             if state == 1:
-                self.mem_retry_cnt = 5
+                self.mem_retry_cnt = 20
                 self.lm.read_mem(mode="dcr_mem")
                 self.cycl_res_log_file.write(mem_data)
                 self.readFullDCRMemTimer.singleShot(300, self.read_full_dcr_mem)
@@ -590,7 +608,25 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.set_u32_to_ledit(self.pl12RdDataLEdit_2, word)
         self.pl12RdPButton_2.setEnabled(True)
 
-    def get_u32_from_ledit(self, line_edit):
+    def pl20_set_iku(self):
+        self.pl20.set_out(ext_reset=self.pl20nResetChBox.isChecked())
+        pass
+
+    def pl20_read_word(self):
+        try:
+            u16_addr = self.get_u16_from_ledit(self.pl20RdAddrLEdit)
+            self.pl20.read_req_data_pl20(u16_addr=u16_addr)
+            self.pl20RdPButton.setEnabled(False)
+        except Exception as error:
+            print("main->read_word->", error)
+        pass
+
+    def pl20_read_word_slot(self, word):
+        self.set_u16_to_ledit(self.pl20RdDataLEdit, word)
+        self.pl20RdPButton.setEnabled(True)
+
+    @staticmethod
+    def get_u32_from_ledit(line_edit):
         str = line_edit.text()
         str_list = str.split(" ")
         str = "".join(str_list)
@@ -601,9 +637,25 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             line_edit.setText("0000 0000")
         return u32val
 
-    def set_u32_to_ledit(self, line_edit, u32val):
+    @staticmethod
+    def get_u16_from_ledit(line_edit):
+        str = line_edit.text()
+        u16val = 0x0000
+        try:
+            u16val = int(str, 16)
+        except ValueError:
+            line_edit.setText("0000")
+        return u16val
+
+    @staticmethod
+    def set_u32_to_ledit(line_edit, u32val):
         line_edit.setText("%04X %04X" % ((u32val >> 16) & 0xFFFF, (u32val >> 0) & 0xFFFF))
         return u32val
+
+    @staticmethod
+    def set_u16_to_ledit(line_edit, u16val):
+        line_edit.setText("%04X" % (u16val & 0xFFFF))
+        return u16val
 
     # LOGs #
     @staticmethod
@@ -632,9 +684,11 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         return file
 
     def recreate_log_files(self):
-        self.data_log_file = self.create_log_file(prefix="Norby_LM", extension=".csv")
-        # заголовки
-        self.data_log_file.write("Title" + "\n")
+        # перезапуск лог файла
+        self.data_log_file_title = None
+        self.data_log_file = self.create_log_file(file=self.data_log_file, sub_dir="Log", sub_sub_dir=True,
+                                                  prefix="Norby_LM",
+                                                  extension=".csv")
         pass
 
     @staticmethod
@@ -644,7 +698,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
                 file.close()
             except (OSError, NameError, AttributeError) as error:
                 print(error)
-                pass
+            finally:
+                file = None
         pass
 
     #

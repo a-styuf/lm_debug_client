@@ -140,3 +140,5 @@ dmypy.json
 /.idea/
 /lm_debug_client/
 /для ИСС/
+/__pycache__/
+*.exe
