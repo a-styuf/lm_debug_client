@@ -24,7 +24,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.setWindowIcon(QtGui.QIcon('icon.png'))
         self.setWindowTitle("Norby - Linking Module. Version {:s}".format(version))
         # класс для управления устройством
-        self.lm = lm_data.LMData(serial_numbers=["0000ACF0", "205135995748", "205B359A", "2056359A", "2059359A", "365938753038", "365638633038", "365638633038"], debug=True, address=6)
+        self.lm = lm_data.LMData(serial_numbers=["0000ACF0", "205135995748", "205B359A", "2056359A", "2059359A", "365938753038", "365638633038", "365638633038", "206E359D5748"], debug=True, address=6)
         self.connectionPButt.clicked.connect(self.lm.usb_can.reconnect)
         # таб с кан-терминалом
         self.can_usb_client_widget = can_unit.ClientGUIWindow(self, interface=self.lm.usb_can)
